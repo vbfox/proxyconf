@@ -1,0 +1,10 @@
+[package]
+name = "rusthello"
+version = "0.1.0"
+authors = ["Julien Roncaglia <julien@roncaglia.fr>"]
+
+[dependencies]
+
+[[bin]]
+name = "rusthello"
+path = "main.rs"
