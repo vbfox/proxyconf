@@ -4,6 +4,8 @@ version = "0.1.0"
 authors = ["Julien Roncaglia <julien@roncaglia.fr>"]
 
 [dependencies]
+winreg = "0.5"
+byteorder = "1.2"
 
 [[bin]]
 name = "rusthello"
