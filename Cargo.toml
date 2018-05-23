@@ -1,5 +1,5 @@
 [package]
-name = "rusthello"
+name = "proxyconf"
 version = "0.1.0"
 authors = ["Julien Roncaglia <julien@roncaglia.fr>"]
 
@@ -7,7 +7,3 @@ authors = ["Julien Roncaglia <julien@roncaglia.fr>"]
 winreg = "0.5"
 byteorder = "1.2"
 error-chain = "0.11"
-
-[[bin]]
-name = "rusthello"
-path = "main.rs"
