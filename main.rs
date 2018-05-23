@@ -1,10 +1,10 @@
+#![recursion_limit = "1024"]
+
 extern crate byteorder;
 extern crate winreg;
 
-use std::io;
-use std::path::Path;
-use winreg::RegKey;
-use winreg::enums::*;
+#[macro_use]
+extern crate error_chain;
 
 mod proxyconf {
     #[derive(Debug)]
@@ -34,12 +34,32 @@ mod proxyconf {
         config: ProxyConfig,
     }
 
-    mod serialization {
+    pub mod serialization {
+        mod errors {
+            error_chain! {
+                foreign_links {
+                    Io(::std::io::Error);
+                    Utf8(::std::str::Utf8Error);
+                }
+
+                errors {
+                    InvalidSize(size: usize) {
+                        description("usize is too big to become an u32"),
+                        display("usize is too big to become an u32: {}", size),
+                    }
+                    InvalidVersion(version: u32) {
+                        description("invalid regitry settings version"),
+                        display("invalid regitry settings version: {}", version),
+                    }
+                }
+            }
+        }
+
+        pub use self::errors::*;
+
         use proxyconf;
         use std;
-        use std::{io, error, fmt};
         use std::io::{BufWriter, BufReader, Write, Read};
-        use std::error::Error;
         use byteorder::{LittleEndian, WriteBytesExt, ReadBytesExt};
 
         fn mk_bit_field(config: &proxyconf::FullConfig) -> u32 {
@@ -58,47 +78,25 @@ mod proxyconf {
             conf
         }
 
-        #[derive(Debug)]
-        pub struct FromUsizeError {
-            invalid_size: usize
-        }
-
-        impl fmt::Display for FromUsizeError {
-            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                return write!(f, "usize is too big to become an u32: {}", self.invalid_size)
-            }
-        }
-
-        impl error::Error for FromUsizeError {
-            fn description(&self) -> &str {
-                return "usize is too big to become an u32";
-            }
-
-            fn cause(&self) -> Option<&error::Error> {
-                None
-            }
-        }
-
-        fn usize_to_u32(a: usize) -> Result<u32, io::Error> {
+        fn usize_to_u32(a: usize) -> Result<u32> {
             if a > std::u32::MAX as usize {
-                let e = FromUsizeError { invalid_size: a };
-                return Err(io::Error::new(io::ErrorKind::InvalidData, e));
+                bail!(ErrorKind::InvalidSize(a));
             } else {
                 Ok(a as u32)
             }
         }
 
-        fn write_string<W: Write>(stream: &mut W, s: &str) -> io::Result<()> {
-            stream.write_u32::<LittleEndian>(usize_to_u32(s.len())?)?;
-            stream.write_all(s.as_bytes())?;
+        fn write_string<W: Write>(writer: &mut W, s: &str) -> Result<()> {
+            writer.write_u32::<LittleEndian>(usize_to_u32(s.len())?)?;
+            writer.write_all(s.as_bytes())?;
             return Ok(());
         }
 
         pub fn serialize<W: Write>(
             config: &proxyconf::FullConfig,
-            stream: &mut W
-        ) -> io::Result<()> {
-            let mut buffered = BufWriter::new(stream);
+            writer: W
+        ) -> Result<()> {
+            let mut buffered = BufWriter::new(writer);
 
             buffered.write_u32::<LittleEndian>(0x46u32)?;
             buffered.write_u32::<LittleEndian>(config.counter)?;
@@ -108,79 +106,30 @@ mod proxyconf {
             write_string(&mut buffered, &config.config.manual_proxy_overrides)?;
             write_string(&mut buffered, &config.config.setup_script_address)?;
 
-            for i in 0..32 {
+            for _ in 0..32 {
                 buffered.write_u8(0)?;
             }
 
             return Ok(());
         }
 
-        #[derive(Debug)]
-        pub enum DeserializeError {
-            IoError(io::Error),
-            Utf8Error(std::str::Utf8Error),
-            InvalidVersionError(u32),
-        }
-
-        impl fmt::Display for DeserializeError {
-            fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-                fmt.write_str("DeserializeError: ")?;
-                match *self {
-                    DeserializeError::IoError(ref err) => err.fmt(fmt)?,
-                    DeserializeError::Utf8Error(ref err) => err.fmt(fmt)?,
-                    DeserializeError::InvalidVersionError(v) => write!(fmt, "Invalid version {}", v)?,
-                }
-                Ok(())
-            }
-        }
-
-        impl Error for DeserializeError {
-            fn description(&self) -> &str {
-                match *self {
-                    DeserializeError::IoError(ref err) => err.description(),
-                    DeserializeError::Utf8Error(ref err) => err.description(),
-                    DeserializeError::InvalidVersionError(_) => "Invalid version",
-                }
-            }
-
-            fn cause(&self) -> Option<&Error> {
-                match *self {
-                    DeserializeError::IoError(ref error) => Some(error),
-                    DeserializeError::Utf8Error(ref error) => Some(error),
-                    _ => None,
-                }
-            }
-        }
-
-        impl From<io::Error> for DeserializeError {
-            fn from(err: io::Error) -> DeserializeError {
-                DeserializeError::IoError(err)
-            }
-        }
-
-        impl From<std::str::Utf8Error> for DeserializeError {
-            fn from(err: std::str::Utf8Error) -> DeserializeError {
-                DeserializeError::Utf8Error(err)
-            }
-        }
-
-        fn read_string<R: Read>(stream: &mut R) -> Result<String, DeserializeError> {
-            let len = stream.read_u32::<LittleEndian>()?;
+        fn read_string<R: Read>(reader: &mut R) -> Result<String> {
+            let len = reader.read_u32::<LittleEndian>()?;
             let mut bytes = vec![0; len as usize];
-            stream.read_exact(&mut bytes)?;
+            reader.read_exact(&mut bytes)?;
 
             let s = std::str::from_utf8(&bytes)?;
             return Ok(String::from(s));
         }
 
         pub fn deserialize<R: Read>(
-            stream: &mut R
-        ) -> Result<proxyconf::FullConfig, DeserializeError> {
-            let mut buffered = BufReader::new(stream);
+            reader: R
+        ) -> Result<proxyconf::FullConfig> {
+            let mut buffered = BufReader::new(reader);
 
             let version = buffered.read_u32::<LittleEndian>()?;
             if version != 0x46u32 {
-                return Err(DeserializeError::InvalidVersionError(version))
+                bail!(ErrorKind::InvalidVersion(version));
             }
 
             let counter = buffered.read_u32::<LittleEndian>()?;
@@ -209,44 +158,81 @@ mod proxyconf {
             return Ok(config);
         }
     }
+
+    pub mod registry {
+        mod errors {
+            error_chain! {
+                foreign_links {
+                    Io(::std::io::Error);
+                }
+
+                links {
+                    Serialization(::proxyconf::serialization::Error, ::proxyconf::serialization::ErrorKind);
+                }
+
+                errors {
+                    InvalidValueType {
+                        description("invalid registry value type"),
+                        display("invalid registry value type"),
+                    }
+                }
+            }
+        }
+
+        pub use self::errors::*;
+
+        use proxyconf;
+        use proxyconf::serialization;
+        use winreg::{RegKey, RegValue};
+        use winreg::enums::*;
+
+        const KEY_PATH: &'static str = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections";
+        const VALUE_NAME: &'static str = "DefaultConnectionSettings";
+
+        fn open_key() -> Result<RegKey> {
+            let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+            let key = hkcu.open_subkey(KEY_PATH)?;
+            return Ok(key);
+        }
+
+        fn write_raw(bytes: Vec<u8>) -> Result<()> {
+            let value = RegValue { vtype: REG_BINARY, bytes };
+            let key = open_key()?;
+            key.set_raw_value(VALUE_NAME, &value)?;
+            return Ok(());
+        }
+
+        pub fn write(config: &proxyconf::FullConfig) -> Result<()> {
+            let mut bytes = Vec::new();
+            serialization::serialize(config, &mut bytes)?;
+            write_raw(bytes)?;
+            return Ok(());
+        }
+
+        fn read_raw() -> Result<Vec<u8>> {
+            let key = open_key()?;
+            let value = key.get_raw_value(VALUE_NAME)?;
+
+            match value.vtype {
+                REG_BINARY => Ok(value.bytes),
+                _ => Err(ErrorKind::InvalidValueType.into()),
+            }
+        }
+
+        pub fn read() -> Result<proxyconf::FullConfig> {
+            let bytes = read_raw()?;
+            let conf = serialization::deserialize(&bytes[..])?;
+            return Ok(conf);
+        }
+    }
 }
 
 fn main() {
-    println!("Reading some system info...");
-    let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
-    let cur_ver = hklm.open_subkey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion")
-        .unwrap();
-    let pf: String = cur_ver.get_value("ProgramFilesDir").unwrap();
-    let dp: String = cur_ver.get_value("DevicePath").unwrap();
-    println!("ProgramFiles = {}\nDevicePath = {}", pf, dp);
-    let info = cur_ver.query_info().unwrap();
-    println!("info = {:?}", info);
-
-    println!("And now lets write something...");
-    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
-    let path = Path::new("Software").join("WinregRsExample1");
-    let key = hkcu.create_subkey(&path).unwrap();
-
-    key.set_value("TestSZ", &"written by Rust").unwrap();
-    let sz_val: String = key.get_value("TestSZ").unwrap();
-    key.delete_value("TestSZ").unwrap();
-    println!("TestSZ = {}", sz_val);
-
-    key.set_value("TestDWORD", &1234567890u32).unwrap();
-    let dword_val: u32 = key.get_value("TestDWORD").unwrap();
-    println!("TestDWORD = {}", dword_val);
-
-    key.set_value("TestQWORD", &1234567891011121314u64).unwrap();
-    let qword_val: u64 = key.get_value("TestQWORD").unwrap();
-    println!("TestQWORD = {}", qword_val);
-
-    key.create_subkey("sub\\key").unwrap();
-    hkcu.delete_subkey_all(&path).unwrap();
-
-    println!("Trying to open nonexistent key...");
-    let key2 = hkcu.open_subkey(&path).unwrap_or_else(|e| match e.kind() {
-        io::ErrorKind::NotFound => panic!("Key doesn't exist"),
-        io::ErrorKind::PermissionDenied => panic!("Access denied"),
-        _ => panic!("{:?}", e),
-    });
+    let conf = proxyconf::registry::read().unwrap();
+    println!("conf = {:?}", conf);
+    let mut bytes = Vec::new();
+    proxyconf::serialization::serialize(&conf, &mut bytes).unwrap();
+    println!("bytes = {:?}", bytes);
+    let conf2 = proxyconf::serialization::deserialize(&bytes[..]).unwrap();
+    println!("conf2 = {:?}", conf2);
 }

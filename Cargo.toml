@@ -6,6 +6,7 @@ authors = ["Julien Roncaglia <julien@roncaglia.fr>"]
 [dependencies]
 winreg = "0.5"
 byteorder = "1.2"
+error-chain = "0.11"
 
 [[bin]]
 name = "rusthello"
