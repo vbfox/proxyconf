@@ -20,10 +20,10 @@ mod errors {
 
 pub use self::errors::*;
 
-use types;
+use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std;
-use std::io::{BufWriter, BufReader, Write, Read};
-use byteorder::{LittleEndian, WriteBytesExt, ReadBytesExt};
+use std::io::{BufReader, BufWriter, Read, Write};
+use types;
 
 fn mk_bit_field(config: &types::FullConfig) -> u32 {
     let mut conf = 0x01u32;
@@ -55,10 +55,7 @@ fn write_string<W: Write>(writer: &mut W, s: &str) -> Result<()> {
     return Ok(());
 }
 
-pub fn serialize<W: Write>(
-    config: &types::FullConfig,
-    writer: W
-) -> Result<()> {
+pub fn serialize<W: Write>(config: &types::FullConfig, writer: W) -> Result<()> {
     let mut buffered = BufWriter::new(writer);
 
     buffered.write_u32::<LittleEndian>(0x46u32)?;
@@ -85,9 +82,7 @@ fn read_string<R: Read>(reader: &mut R) -> Result<String> {
     return Ok(String::from(s));
 }
 
-pub fn deserialize<R: Read>(
-    reader: R
-) -> Result<types::FullConfig> {
+pub fn deserialize<R: Read>(reader: R) -> Result<types::FullConfig> {
     let mut buffered = BufReader::new(reader);
 
     let version = buffered.read_u32::<LittleEndian>()?;
@@ -115,7 +110,7 @@ pub fn deserialize<R: Read>(
             use_manual_proxy,
             manual_proxy_address,
             manual_proxy_overrides,
-        }
+        },
     };
 
     return Ok(config);

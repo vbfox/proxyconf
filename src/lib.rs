@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate error_chain;
-extern crate winreg;
 extern crate byteorder;
+extern crate winreg;
 
 mod types;
 pub use self::types::*;

@@ -19,12 +19,13 @@ mod errors {
 
 pub use self::errors::*;
 
-use types;
 use serialization;
-use winreg::{RegKey, RegValue};
+use types;
 use winreg::enums::*;
+use winreg::{RegKey, RegValue};
 
-const KEY_PATH: &'static str = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections";
+const KEY_PATH: &'static str =
+    "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections";
 const VALUE_NAME: &'static str = "DefaultConnectionSettings";
 
 fn open_key() -> Result<RegKey> {
@@ -34,7 +35,10 @@ fn open_key() -> Result<RegKey> {
 }
 
 fn write_raw(bytes: Vec<u8>) -> Result<()> {
-    let value = RegValue { vtype: REG_BINARY, bytes };
+    let value = RegValue {
+        vtype: REG_BINARY,
+        bytes,
+    };
     let key = open_key()?;
     key.set_raw_value(VALUE_NAME, &value)?;
     return Ok(());
