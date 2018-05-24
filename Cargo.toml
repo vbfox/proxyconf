@@ -2,8 +2,28 @@
 name = "proxyconf"
 version = "0.1.0"
 authors = ["Julien Roncaglia <julien@roncaglia.fr>"]
+license = "MIT"
+homepage = "https://github.com/vbfox/proxyconf"
+repository = "https://github.com/vbfox/proxyconf"
+description = """
+Windows proxy configuration from the command line.
+"""
 
 [dependencies]
 winreg = "0.5"
 byteorder = "1.2"
 error-chain = "0.11"
+clap = "2.30"
+
+[profile.release]
+lto = true
+panic = 'abort'
+
+[lib]
+name = "proxyconf"
+path = "src/proxyconf/lib.rs"
+
+[[bin]]
+name = "proxyconf"
+test = false
+doc = false
