@@ -18,6 +18,7 @@ clap = "2.30"
 [profile.release]
 lto = true
 panic = 'abort'
+# opt-level = 'z'
 
 [lib]
 name = "proxyconf"
