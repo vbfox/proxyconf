@@ -45,7 +45,7 @@ fn write_raw(bytes: Vec<u8>) -> Result<()> {
     return Ok(());
 }
 
-pub fn write(config: &types::FullConfig) -> Result<()> {
+pub fn write_full(config: &types::FullConfig) -> Result<()> {
     let mut bytes = Vec::new();
     serialization::serialize(config, &mut bytes)?;
     write_raw(bytes)?;
@@ -62,19 +62,31 @@ fn read_raw() -> Result<Vec<u8>> {
     }
 }
 
-pub fn read() -> Result<types::FullConfig> {
+pub fn read_full() -> Result<types::FullConfig> {
     let bytes = read_raw()?;
     let conf = serialization::deserialize(&bytes[..])?;
     return Ok(conf);
 }
 
+pub fn read() -> Result<types::ProxyConfig> {
+    return Ok(read_full()?.config);
+}
+
+pub fn write(config: types::ProxyConfig) -> Result<()> {
+    let full_before = read_full()?;
+    let full_after = types::FullConfig { counter: full_before.counter + 1, config };
+    write_full(&full_after)?;
+
+    Ok(())
+}
+
 pub fn update<F>(updater: F) -> Result<()>
     where F: FnOnce(types::ProxyConfig) -> types::ProxyConfig {
-    let full_before = read()?;
+    let full_before = read_full()?;
     let after = updater(full_before.config);
 
-    let full_after = types::FullConfig { counter: full_before.counter +1, config: after };
-    write(&full_after)?;
+    let full_after = types::FullConfig { counter: full_before.counter + 1, config: after };
+    write_full(&full_after)?;
 
     Ok(())
 }

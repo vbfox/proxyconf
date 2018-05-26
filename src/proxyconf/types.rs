@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ProxyConfig {
     pub automatically_detect_settings: bool,
     pub use_setup_script: bool,
@@ -19,7 +19,7 @@ pub fn empty() -> ProxyConfig {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FullConfig {
     pub counter: u32,
     pub config: ProxyConfig,
