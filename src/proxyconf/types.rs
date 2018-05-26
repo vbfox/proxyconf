@@ -19,7 +19,7 @@ pub fn empty() -> ProxyConfig {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FullConfig {
     pub counter: u32,
     pub config: ProxyConfig,
