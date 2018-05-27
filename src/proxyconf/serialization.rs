@@ -82,7 +82,28 @@ fn read_string<R: Read>(reader: &mut R) -> Result<String> {
     return Ok(String::from(s));
 }
 
-pub fn deserialize<R: Read>(reader: R) -> Result<types::FullConfig> {
+fn deserialize_config<R: Read>(mut reader: R) -> Result<types::ProxyConfig> {
+    let conf = reader.read_u32::<LittleEndian>()?;
+
+    let automatically_detect_settings = (conf & 0x08) != 0x00;
+    let use_setup_script = (conf & 0x04) != 0x00;
+    let use_manual_proxy = (conf & 0x02) != 0x00;
+
+    let manual_proxy_address = read_string(&mut reader)?;
+    let manual_proxy_overrides = read_string(&mut reader)?;
+    let setup_script_address = read_string(&mut reader)?;
+
+    return Ok(types::ProxyConfig {
+            automatically_detect_settings,
+            use_setup_script,
+            setup_script_address,
+            use_manual_proxy,
+            manual_proxy_address,
+            manual_proxy_overrides,
+        });
+}
+
+pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::FullConfig> {
     let mut buffered = BufReader::new(reader);
 
     let version = buffered.read_u32::<LittleEndian>()?;
@@ -91,27 +112,7 @@ pub fn deserialize<R: Read>(reader: R) -> Result<types::FullConfig> {
     }
 
     let counter = buffered.read_u32::<LittleEndian>()?;
-    let conf = buffered.read_u32::<LittleEndian>()?;
+    let config = deserialize_config(buffered)?;
 
-    let automatically_detect_settings = (conf & 0x08) != 0x00;
-    let use_setup_script = (conf & 0x04) != 0x00;
-    let use_manual_proxy = (conf & 0x02) != 0x00;
-
-    let manual_proxy_address = read_string(&mut buffered)?;
-    let manual_proxy_overrides = read_string(&mut buffered)?;
-    let setup_script_address = read_string(&mut buffered)?;
-
-    let config = types::FullConfig {
-        counter,
-        config: types::ProxyConfig {
-            automatically_detect_settings,
-            use_setup_script,
-            setup_script_address,
-            use_manual_proxy,
-            manual_proxy_address,
-            manual_proxy_overrides,
-        },
-    };
-
-    return Ok(config);
+    return Ok(types::FullConfig { counter, config: config });
 }
