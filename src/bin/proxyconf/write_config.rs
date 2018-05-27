@@ -13,7 +13,7 @@ fn to_writer(writer: &mut Write, config: &proxyconf::ProxyConfig) {
         ).unwrap();;
     } else if config.use_manual_proxy && config.manual_proxy_address.len() > 0 {
         writeln!(writer, "Manual proxy: {}", config.manual_proxy_address).unwrap();;
-        writeln!(writer, "Exceptions: {}", config.manual_proxy_overrides).unwrap();;
+        writeln!(writer, "Bypass list: {}", config.manual_proxy_bypass_list).unwrap();;
     } else {
         writeln!(writer, "No proxy configured").unwrap();
     }

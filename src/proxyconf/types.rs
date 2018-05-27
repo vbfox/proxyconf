@@ -5,7 +5,7 @@ pub struct ProxyConfig {
     pub setup_script_address: String,
     pub use_manual_proxy: bool,
     pub manual_proxy_address: String,
-    pub manual_proxy_overrides: String,
+    pub manual_proxy_bypass_list: String,
 }
 
 pub fn empty() -> ProxyConfig {
@@ -15,7 +15,7 @@ pub fn empty() -> ProxyConfig {
         setup_script_address: String::from(""),
         use_manual_proxy: false,
         manual_proxy_address: String::from(""),
-        manual_proxy_overrides: String::from(""),
+        manual_proxy_bypass_list: String::from(""),
     }
 }
 

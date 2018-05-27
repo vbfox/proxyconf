@@ -21,7 +21,8 @@ fn config_args<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
         .arg(
             Arg::with_name("server")
                 .short("s")
-                .long("server")
+                .long("proxy-server")
+                .alias("server")
                 .value_name("ADDRESS:PORT")
                 .help("Use a manual proxy with the specified address and port")
                 .takes_value(true)
@@ -29,10 +30,11 @@ fn config_args<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
                 .conflicts_with("setupscript"),
         )
         .arg(
-            Arg::with_name("overrides")
-                .short("o")
-                .long("overrides")
-                .value_name("OVERRIDES")
+            Arg::with_name("bypass")
+                .short("b")
+                .long("bypass-list")
+                .alias("bypass")
+                .value_name("BYPASS-LIST")
                 .help("List of addresses that don't use the proxy (Separated by semicolons)")
                 .takes_value(true)
                 .conflicts_with("autodetect")

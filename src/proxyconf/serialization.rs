@@ -63,7 +63,7 @@ pub fn serialize<W: Write>(config: &types::FullConfig, writer: W) -> Result<()> 
     buffered.write_u32::<LittleEndian>(mk_bit_field(&config))?;
 
     write_string(&mut buffered, &config.config.manual_proxy_address)?;
-    write_string(&mut buffered, &config.config.manual_proxy_overrides)?;
+    write_string(&mut buffered, &config.config.manual_proxy_bypass_list)?;
     write_string(&mut buffered, &config.config.setup_script_address)?;
 
     for _ in 0..32 {
@@ -90,7 +90,7 @@ fn deserialize_config<R: Read>(mut reader: R) -> Result<types::ProxyConfig> {
     let use_manual_proxy = (conf & 0x02) != 0x00;
 
     let manual_proxy_address = read_string(&mut reader)?;
-    let manual_proxy_overrides = read_string(&mut reader)?;
+    let manual_proxy_bypass_list = read_string(&mut reader)?;
     let setup_script_address = read_string(&mut reader)?;
 
     return Ok(types::ProxyConfig {
@@ -99,7 +99,7 @@ fn deserialize_config<R: Read>(mut reader: R) -> Result<types::ProxyConfig> {
         setup_script_address,
         use_manual_proxy,
         manual_proxy_address,
-        manual_proxy_overrides,
+        manual_proxy_bypass_list,
     });
 }
 

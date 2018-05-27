@@ -8,11 +8,11 @@ fn set_config(config: &proxyconf::ProxyConfig) {
     write_config::to_stdout(&config);
 }
 
-pub fn set_server(server: &str, overrides: &str) {
+pub fn set_server(server: &str, bypass_list: &str) {
     set_config(&proxyconf::ProxyConfig {
         use_manual_proxy: true,
         manual_proxy_address: server.into(),
-        manual_proxy_overrides: overrides.into(),
+        manual_proxy_bypass_list: bypass_list.into(),
         ..proxyconf::empty()
     });
 }
