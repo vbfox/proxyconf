@@ -14,19 +14,21 @@ Using command-line only windows version (Core or Nano) behind a proxy can be pro
 FROM microsoft/nanoserver:1803
 
 COPY proxyconf.exe .
-RUN proxyconf set --proxy-server 10.0.0.1:8080 --bypass-list "*.my-company;<local>"
+RUN proxyconf set proxy 10.0.0.1:8080 "*.my-company;<local>"
 ```
 
 ## Command line
 
 * `proxyconf show` Show the current proxy configuration
 * `proxyconf set` Set the proxy configuration. One of theses must be specified:
-  * `--no-proxy` No proxy should be used.
-  * `--auto-detect` Automatically detect settings. Windows will use the [Web Proxy Autodiscovery Protocol][wpad] or fallback to direct connection
-  * `--proxy-server <ADDRESS:PORT>` The proxy server and optional port to use.
-    * Optionally `--bypass-list <LIST>` The list of addresses that bypass the proxy separated by semicolons (`;`).<br/>
-      Use `<local>` to bypass all short name hosts.
-  * `--setup-script <URL>` Use [Proxy auto-config (PAC)][pac] from the specified URL.
+  * `no-proxy` No proxy should be used.
+  * `auto-detect` Automatically detect settings. Windows will use the [Web Proxy Autodiscovery Protocol][wpad] or fallback to direct connection
+  * `proxy <ADDRESS:PORT> [BYPASS_LIST]`
+    * `ADDRESS:PORT` The proxy server and optional port to use.
+    * `BYPASS_LIST` Optional list of addresses that bypass the proxy separated by semicolons (`;`).<br/>
+      Use `<local>` to bypass all short name hosts.<br/>
+      Default to `<local>` if not specified.
+  * `setup-script <URL>` Use [Proxy auto-config (PAC)][pac] from the specified URL.
 
 [wpad]: https://en.wikipedia.org/wiki/Web_Proxy_Auto-Discovery_Protocol
 [pac]: https://en.wikipedia.org/wiki/Proxy_auto-config

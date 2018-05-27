@@ -17,7 +17,7 @@ pub fn set_server(server: &str, bypass_list: &str) {
     });
 }
 
-pub fn set_setupscript(setupscript: &str) {
+pub fn set_setup_script(setupscript: &str) {
     set_config(&proxyconf::ProxyConfig {
         use_setup_script: true,
         setup_script_address: setupscript.into(),
@@ -25,7 +25,7 @@ pub fn set_setupscript(setupscript: &str) {
     });
 }
 
-pub fn set_autodetect() {
+pub fn set_auto_detect() {
     set_config(&proxyconf::ProxyConfig {
         automatically_detect_settings: true,
         ..proxyconf::empty()
