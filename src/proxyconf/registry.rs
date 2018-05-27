@@ -74,18 +74,26 @@ pub fn read() -> Result<types::ProxyConfig> {
 
 pub fn write(config: types::ProxyConfig) -> Result<()> {
     let full_before = read_full()?;
-    let full_after = types::FullConfig { counter: full_before.counter + 1, config };
+    let full_after = types::FullConfig {
+        counter: full_before.counter + 1,
+        config,
+    };
     write_full(&full_after)?;
 
     Ok(())
 }
 
 pub fn update<F>(updater: F) -> Result<()>
-    where F: FnOnce(types::ProxyConfig) -> types::ProxyConfig {
+where
+    F: FnOnce(types::ProxyConfig) -> types::ProxyConfig,
+{
     let full_before = read_full()?;
     let after = updater(full_before.config);
 
-    let full_after = types::FullConfig { counter: full_before.counter + 1, config: after };
+    let full_after = types::FullConfig {
+        counter: full_before.counter + 1,
+        config: after,
+    };
     write_full(&full_after)?;
 
     Ok(())

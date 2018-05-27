@@ -3,9 +3,9 @@ extern crate proxyconf;
 #[macro_use]
 extern crate clap;
 
-mod write_config;
 mod args;
 mod commands;
+mod write_config;
 
 fn main() {
     let matches = args::get().get_matches();
@@ -18,17 +18,14 @@ fn main() {
         if let Some(server) = set_matches.value_of("server") {
             let overrides = set_matches.value_of("overrides").unwrap_or("<local>");
             commands::set_server(server, overrides);
-        }
-        else if let Some(setupscript) = set_matches.value_of("setupscript") {
+        } else if let Some(setupscript) = set_matches.value_of("setupscript") {
             commands::set_setupscript(setupscript);
-        }
-        else if set_matches.is_present("autodetect") {
+        } else if set_matches.is_present("autodetect") {
             commands::set_autodetect();
         } else {
             println!("ERROR: No configuration specified.");
         }
     } else {
         println!("Nope");
-
     }
 }

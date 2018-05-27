@@ -94,13 +94,13 @@ fn deserialize_config<R: Read>(mut reader: R) -> Result<types::ProxyConfig> {
     let setup_script_address = read_string(&mut reader)?;
 
     return Ok(types::ProxyConfig {
-            automatically_detect_settings,
-            use_setup_script,
-            setup_script_address,
-            use_manual_proxy,
-            manual_proxy_address,
-            manual_proxy_overrides,
-        });
+        automatically_detect_settings,
+        use_setup_script,
+        setup_script_address,
+        use_manual_proxy,
+        manual_proxy_address,
+        manual_proxy_overrides,
+    });
 }
 
 pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::FullConfig> {
@@ -114,5 +114,8 @@ pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::FullConfig> {
     let counter = buffered.read_u32::<LittleEndian>()?;
     let config = deserialize_config(buffered)?;
 
-    return Ok(types::FullConfig { counter, config: config });
+    return Ok(types::FullConfig {
+        counter,
+        config: config,
+    });
 }
