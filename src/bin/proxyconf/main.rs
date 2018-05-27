@@ -15,7 +15,9 @@ fn main() {
         print!("Proxy configuration: ");
         write_config::to_stdout(&conf);
     } else if let Some(set_matches) = matches.subcommand_matches("set") {
-        if let Some(server) = set_matches.value_of("server") {
+        if set_matches.is_present("noproxy") {
+            commands::set_no_proxy();
+        } else if let Some(server) = set_matches.value_of("server") {
             let overrides = set_matches.value_of("bypass").unwrap_or("<local>");
             commands::set_server(server, overrides);
         } else if let Some(setupscript) = set_matches.value_of("setupscript") {

@@ -6,17 +6,22 @@ fn config_args<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
             .short("a")
             .long("auto-detect")
             .help("Automatically detect settings")
-            .conflicts_with("setupscript")
-            .conflicts_with("server"),
+            .conflicts_with_all(&["setupscript", "server", "noproxy"]),
     ).arg(
+            Arg::with_name("noproxy")
+                .short("n")
+                .long("no-proxy")
+                .help("Disable proxy.")
+                .conflicts_with_all(&["setupscript", "server", "autodetect"]),
+        )
+        .arg(
             Arg::with_name("setupscript")
                 .short("s")
                 .long("setup-script")
                 .value_name("URL")
                 .help("Use a setup script (Proxy auto-config / PAC)")
                 .takes_value(true)
-                .conflicts_with("autodetect")
-                .conflicts_with("server"),
+                .conflicts_with_all(&["autodetect", "server", "noproxy"]),
         )
         .arg(
             Arg::with_name("server")
@@ -26,8 +31,7 @@ fn config_args<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
                 .value_name("ADDRESS:PORT")
                 .help("Use a manual proxy with the specified address and port")
                 .takes_value(true)
-                .conflicts_with("autodetect")
-                .conflicts_with("setupscript"),
+                .conflicts_with_all(&["autodetect", "setupscript", "noproxy"]),
         )
         .arg(
             Arg::with_name("bypass")
@@ -37,8 +41,7 @@ fn config_args<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
                 .value_name("LIST")
                 .help("List of addresses that don't use the proxy (Separated by semicolons)")
                 .takes_value(true)
-                .conflicts_with("autodetect")
-                .conflicts_with("setupscript"),
+                .conflicts_with_all(&["autodetect", "setupscript", "noproxy"]),
         )
 }
 

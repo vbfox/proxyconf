@@ -31,3 +31,9 @@ pub fn set_autodetect() {
         ..proxyconf::empty()
     });
 }
+
+pub fn set_no_proxy() {
+    set_config(&proxyconf::ProxyConfig {
+        ..proxyconf::empty()
+    });
+}
