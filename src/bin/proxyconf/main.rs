@@ -8,7 +8,7 @@ mod commands;
 mod write_config;
 
 fn on_unexpected() {
-    args::get().print_help();
+    args::get().print_help().unwrap();
     std::process::exit(1);
 }
 
