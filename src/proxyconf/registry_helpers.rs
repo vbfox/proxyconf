@@ -1,3 +1,5 @@
+//! Small helpers for winreg that could be contributed one day
+
 use winreg::RegKey;
 use std::io;
 

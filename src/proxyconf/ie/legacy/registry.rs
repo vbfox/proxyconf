@@ -58,7 +58,7 @@ pub fn read() -> Result<types::ProxyConfig> {
     let setup_script_address = get_optional_string(&key, "AutoConfigURL")?;
 
     return Ok(types::ProxyConfig {
-        setup_script_address: setup_script_address,
+        setup_script_address,
         use_manual_proxy: match proxy_enable.unwrap_or(0) { 0 => false, _ => true },
         manual_proxy_address: proxy_server.unwrap_or(String::from("")),
         manual_proxy_bypass_list: proxy_override.unwrap_or(String::from("")),
