@@ -1,8 +1,8 @@
-use proxyconf;
 use std::io;
 use std::io::Write;
+use proxyconf::ie;
 
-fn to_writer(writer: &mut Write, config: &proxyconf::ProxyConfig) {
+fn to_writer(writer: &mut Write, config: &ie::ProxyConfig) {
     if config.automatically_detect_settings {
         writeln!(writer, "Automatically detect settings").unwrap();;
     } else if config.use_setup_script && config.setup_script_address.len() > 0 {
@@ -19,7 +19,7 @@ fn to_writer(writer: &mut Write, config: &proxyconf::ProxyConfig) {
     }
 }
 
-pub fn to_stdout(config: &proxyconf::ProxyConfig) {
+pub fn to_stdout(config: &ie::ProxyConfig) {
     let mut stdout = io::stdout();
     to_writer(&mut stdout, &config);
 }

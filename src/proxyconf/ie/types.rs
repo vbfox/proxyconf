@@ -8,7 +8,7 @@ pub struct ProxyConfig {
     pub manual_proxy_bypass_list: String,
 }
 
-pub fn empty() -> ProxyConfig {
+pub fn empty_config() -> ProxyConfig {
     ProxyConfig {
         automatically_detect_settings: false,
         use_setup_script: false,

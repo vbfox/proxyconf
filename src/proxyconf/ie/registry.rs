@@ -5,7 +5,7 @@ mod errors {
         }
 
         links {
-            Serialization(::serialization::Error, ::serialization::ErrorKind);
+            Serialization(super::serialization::Error, super::serialization::ErrorKind);
         }
 
         errors {
@@ -19,8 +19,8 @@ mod errors {
 
 pub use self::errors::*;
 
-use serialization;
-use types;
+use super::serialization;
+use super::types;
 use winreg::enums::*;
 use winreg::{RegKey, RegValue};
 

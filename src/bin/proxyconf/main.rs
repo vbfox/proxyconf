@@ -16,7 +16,7 @@ fn main() {
     let matches = args::get().get_matches();
 
     if let Some(_matches) = matches.subcommand_matches("show") {
-        let conf = proxyconf::registry::read().unwrap();
+        let conf = proxyconf::ie::registry::read().unwrap();
         print!("Proxy configuration: ");
         write_config::to_stdout(&conf);
     } else if let Some(set_matches) = matches.subcommand_matches("set") {
