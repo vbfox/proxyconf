@@ -20,7 +20,7 @@ mod errors {
 pub use self::errors::*;
 
 use super::serialization;
-use super::super::types;
+use super::types;
 use winreg::enums::*;
 use winreg::{RegKey, RegValue};
 

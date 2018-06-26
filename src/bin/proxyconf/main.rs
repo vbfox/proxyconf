@@ -19,8 +19,11 @@ fn main() {
 
     if let Some(_matches) = matches.subcommand_matches("show") {
         let conf = ie::modern::registry::read().unwrap();
-        print!("Proxy configuration: ");
-        write_config::to_stdout(&conf);
+        print!("Internet explorer: ");
+        write_config::ie_modern(&conf);
+        print!("Internet explorer (legacy): ");
+        let legacy_conf = ie::legacy::registry::read().unwrap();
+        write_config::ie_legacy(&legacy_conf);
     } else if let Some(set_matches) = matches.subcommand_matches("set") {
         if let Some(_) = set_matches.subcommand_matches("no-proxy") {
             commands::set_no_proxy();

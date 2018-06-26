@@ -1,4 +1,2 @@
-mod types;
-pub use self::types::*;
-
 pub mod modern;
+pub mod legacy;
