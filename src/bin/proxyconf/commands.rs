@@ -2,7 +2,7 @@ use write_config;
 use proxyconf::ie;
 
 fn set_config(config: &ie::ProxyConfig) {
-    ie::registry::write(config.clone()).unwrap();
+    ie::modern::registry::write(config.clone()).unwrap();
 
     print!("Configuration changed to: ");
     write_config::to_stdout(&config);
