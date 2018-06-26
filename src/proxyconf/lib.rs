@@ -7,3 +7,4 @@ extern crate winreg;
 
 mod registry_helpers;
 pub mod ie;
+pub mod winhttp;
