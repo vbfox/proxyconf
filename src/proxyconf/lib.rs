@@ -5,6 +5,6 @@ extern crate error_chain;
 extern crate byteorder;
 extern crate winreg;
 
-mod registry_helpers;
 pub mod ie;
+mod registry_helpers;
 pub mod winhttp;

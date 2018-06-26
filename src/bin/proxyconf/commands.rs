@@ -1,5 +1,5 @@
-use write_config;
 use proxyconf::ie;
+use write_config;
 
 fn set_config(config: &ie::modern::ProxyConfig) {
     ie::modern::registry::write(config.clone()).unwrap();

@@ -20,10 +20,10 @@ mod errors {
 
 pub use self::errors::*;
 
+use super::types;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std;
 use std::io::{BufReader, BufWriter, Read, Write};
-use super::types;
 
 fn mk_bit_field(config: &types::FullConfig) -> u32 {
     let mut conf = 0x01u32;

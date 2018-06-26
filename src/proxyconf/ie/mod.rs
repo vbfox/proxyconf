@@ -1,2 +1,2 @@
-pub mod modern;
 pub mod legacy;
+pub mod modern;
