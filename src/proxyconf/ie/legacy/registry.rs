@@ -54,6 +54,10 @@ pub fn write(config: types::ProxyConfig) -> Result<()> {
         }
     }
 
+    // The seem to indicate if the proxy first time setup been made. Might have been applicable when
+    // IE wasn't delivered in Windows as now it's always 1.
+    key.set_value("MigrateProxy", &1u32)?;
+
     return Ok(());
 }
 
