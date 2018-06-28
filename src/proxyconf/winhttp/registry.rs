@@ -25,7 +25,7 @@ use winreg::enums::*;
 use winreg::{RegKey, RegValue};
 
 const KEY_PATH: &'static str =
-    "SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections";
+    "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections";
 const KEY_PATH_WOW6432: &'static str =
     "SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections";
 const VALUE_NAME: &'static str = "WinHttpSettings";

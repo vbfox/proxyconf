@@ -1,16 +1,31 @@
 use clap::{App, Arg, SubCommand};
 
-fn args_for_set<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
-    app.subcommand(
-        SubCommand::with_name("no-proxy")
-            .about("Disable proxy")
-            .aliases(&["disabled"]),
-    ).subcommand(
+trait CommonCommands<'a, 'b> {
+    fn no_proxy(self) -> App<'a, 'b>;
+    fn auto_detect(self) -> App<'a, 'b>;
+    fn setup_script(self) -> App<'a, 'b>;
+    fn manual_proxy(self) -> App<'a, 'b>;
+}
+
+impl<'a, 'b> CommonCommands<'a, 'b> for App<'a, 'b> {
+    fn no_proxy(self) -> App<'a, 'b> {
+        return self.subcommand(
+            SubCommand::with_name("no-proxy")
+                .about("Disable proxy")
+                .aliases(&["disabled"]),
+        );
+    }
+
+    fn auto_detect(self) -> App<'a, 'b> {
+        return self.subcommand(
             SubCommand::with_name("auto-detect")
                 .about("Automatically detect settings")
                 .aliases(&["auto"]),
-        )
-        .subcommand(
+        );
+    }
+
+    fn setup_script(self) -> App<'a, 'b> {
+        return self.subcommand(
             SubCommand::with_name("setup-script")
                 .about("Use a Proxy auto-config setup script (PAC)")
                 .arg(
@@ -21,8 +36,11 @@ fn args_for_set<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
                         .takes_value(true)
                         .required(true),
                 ),
-        )
-        .subcommand(
+        );
+    }
+
+    fn manual_proxy(self) -> App<'a, 'b> {
+        return self.subcommand(
             SubCommand::with_name("proxy")
                 .about("Use a manual proxy")
                 .arg(
@@ -44,6 +62,7 @@ fn args_for_set<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
                         .required(false),
                 ),
         )
+    }
 }
 
 pub fn get<'a, 'b>() -> App<'a, 'b> {
@@ -51,8 +70,27 @@ pub fn get<'a, 'b>() -> App<'a, 'b> {
         .version(crate_version!())
         .author("Julien Roncaglia <julien@roncaglia.fr>")
         .about("Windows proxy configuration from the command line")
-        .subcommand(args_for_set(
-            SubCommand::with_name("set").about("Set the proxy configuration"),
-        ))
-        .subcommand(SubCommand::with_name("show").about("Show the current proxy configuration"));
+        .subcommand(
+            SubCommand::with_name("set")
+                .about("Set the proxy configuration")
+                .no_proxy()
+                .auto_detect()
+                .setup_script()
+                .manual_proxy(),
+        )
+        .subcommand(
+            SubCommand::with_name("show")
+                .about("Show the current proxy configuration"))
+        .subcommand(
+            SubCommand::with_name("winhttp")
+                .about("Specific WinHTTP commands")
+                .subcommand(
+                    SubCommand::with_name("set")
+                        .about("Set the WinHTTP configuration")
+                        .no_proxy()
+                        .manual_proxy(),
+                )
+                .subcommand(
+                    SubCommand::with_name("show")
+                        .about("Show the current WinHTTP configuration")));
 }

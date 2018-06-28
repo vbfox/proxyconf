@@ -38,7 +38,7 @@ fn mk_bit_field(config: &types::ProxyConfig) -> u32 {
 pub fn serialize<W: Write>(config: &types::ProxyConfig, writer: W) -> Result<()> {
     let mut buffered = BufWriter::new(writer);
 
-    buffered.write_u32::<LittleEndian>(0x18u32)?;
+    buffered.write_u32::<LittleEndian>(0x28u32)?;
     buffered.write_u32::<LittleEndian>(0x0u32)?; // Unknown byte
     buffered.write_u32::<LittleEndian>(mk_bit_field(&config))?;
 
@@ -67,7 +67,7 @@ pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::ProxyConfig> {
     let mut buffered = BufReader::new(reader);
 
     let version = buffered.read_u32::<LittleEndian>()?;
-    if version != 0x18u32 {
+    if version != 0x28u32 {
         bail!(ErrorKind::InvalidVersion(version));
     }
 
