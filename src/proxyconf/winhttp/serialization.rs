@@ -3,7 +3,10 @@ mod errors {
         foreign_links {
             Io(::std::io::Error);
             Utf8(::std::str::Utf8Error);
-            Serialization(super::super::super::string_serialization::Error);
+        }
+
+        links {
+            Serialization(super::super::super::string_serialization::Error, super::super::super::string_serialization::ErrorKind);
         }
 
         errors {
@@ -35,7 +38,7 @@ fn mk_bit_field(config: &types::ProxyConfig) -> u32 {
 pub fn serialize<W: Write>(config: &types::ProxyConfig, writer: W) -> Result<()> {
     let mut buffered = BufWriter::new(writer);
 
-    buffered.write_u32::<LittleEndian>(0x24u32)?;
+    buffered.write_u32::<LittleEndian>(0x18u32)?;
     buffered.write_u32::<LittleEndian>(0x0u32)?; // Unknown byte
     buffered.write_u32::<LittleEndian>(mk_bit_field(&config))?;
 
@@ -46,12 +49,10 @@ pub fn serialize<W: Write>(config: &types::ProxyConfig, writer: W) -> Result<()>
 }
 
 fn deserialize_config<R: Read>(mut reader: R) -> Result<types::ProxyConfig> {
-    let conf = reader.read_u32::<LittleEndian>()?;
-
-    let use_manual_proxy = (conf & 0x02) != 0x00;
-
     reader.read_u32::<LittleEndian>()?; // Unknown byte
 
+    let conf = reader.read_u32::<LittleEndian>()?;
+    let use_manual_proxy = (conf & 0x02) != 0x00;
     let manual_proxy_address = string_serialization::read(&mut reader)?;
     let manual_proxy_bypass_list = string_serialization::read(&mut reader)?;
 
@@ -66,7 +67,7 @@ pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::ProxyConfig> {
     let mut buffered = BufReader::new(reader);
 
     let version = buffered.read_u32::<LittleEndian>()?;
-    if version != 0x24u32 {
+    if version != 0x18u32 {
         bail!(ErrorKind::InvalidVersion(version));
     }
 

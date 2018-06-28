@@ -8,6 +8,7 @@ mod commands;
 mod write_config;
 
 use proxyconf::ie;
+use proxyconf::winhttp;
 
 fn on_unexpected() {
     args::get().print_help().unwrap();
@@ -19,11 +20,18 @@ fn main() {
 
     if let Some(_matches) = matches.subcommand_matches("show") {
         let conf = ie::modern::registry::read().unwrap();
-        print!("Internet explorer: ");
+        println!("Internet explorer: ");
         write_config::ie_modern(&conf);
-        print!("Internet explorer (legacy): ");
+
+        println!("");
+        println!("Internet explorer (legacy): ");
         let legacy_conf = ie::legacy::registry::read().unwrap();
         write_config::ie_legacy(&legacy_conf);
+
+        println!("");
+        println!("WinHTTP (System wide): ");
+        let winhttp_conf = winhttp::registry::read().unwrap();
+        write_config::winhttp(&winhttp_conf);
     } else if let Some(set_matches) = matches.subcommand_matches("set") {
         if let Some(_) = set_matches.subcommand_matches("no-proxy") {
             commands::set_no_proxy();

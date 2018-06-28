@@ -3,7 +3,10 @@ mod errors {
         foreign_links {
             Io(::std::io::Error);
             Utf8(::std::str::Utf8Error);
-            Serialization(super::super::super::super::string_serialization::Error);
+        }
+
+        links {
+            Serialization(super::super::super::super::string_serialization::Error, super::super::super::super::string_serialization::ErrorKind);
         }
 
         errors {
