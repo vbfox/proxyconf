@@ -1,6 +1,6 @@
 [package]
 name = "proxyconf"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Julien Roncaglia <julien@roncaglia.fr>"]
 license = "MIT"
 keywords = ["windows", "docker", "proxy", "config", "cli"]
@@ -12,10 +12,10 @@ Windows proxy configuration from the command line.
 readme = "README.md"
 
 [dependencies]
-winreg = "0.5"
-byteorder = "1.2"
-error-chain = "0.11"
-clap = "2.30"
+winreg = "0.5.1"
+byteorder = "1.2.3"
+error-chain = "0.12.0"
+clap = "2.32.0"
 
 [profile.release]
 lto = true
