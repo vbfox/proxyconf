@@ -4,6 +4,7 @@ version = "0.1.2"
 authors = ["Julien Roncaglia <julien@roncaglia.fr>"]
 license = "MIT"
 keywords = ["windows", "docker", "proxy", "config", "cli"]
+categories = ["command-line-utilities", "os::windows-apis"]
 homepage = "https://github.com/vbfox/proxyconf"
 repository = "https://github.com/vbfox/proxyconf"
 description = """
