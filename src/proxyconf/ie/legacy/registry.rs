@@ -8,7 +8,7 @@ mod errors {
 
 pub use self::errors::*;
 
-use super::super::super::registry_helpers::*;
+use ::registry_helpers::*;
 use super::types;
 use winreg::enums::*;
 use winreg::RegKey;

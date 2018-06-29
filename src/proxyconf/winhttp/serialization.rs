@@ -6,7 +6,7 @@ mod errors {
         }
 
         links {
-            Serialization(super::super::super::string_serialization::Error, super::super::super::string_serialization::ErrorKind);
+            Serialization(::string_serialization::Error, ::string_serialization::ErrorKind);
         }
 
         errors {
@@ -23,7 +23,7 @@ pub use self::errors::*;
 use super::types;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std::io::{BufReader, BufWriter, Read, Write};
-use super::super::string_serialization;
+use ::string_serialization;
 
 fn mk_bit_field(config: &types::ProxyConfig) -> u32 {
     let mut conf = 0x01u32;
