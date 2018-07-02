@@ -56,6 +56,8 @@ pub fn serialize<W: Write>(config: &types::FullConfig, writer: W) -> Result<()> 
         buffered.write_u8(0)?;
     }
 
+    buffered.flush()?;
+
     return Ok(());
 }
 

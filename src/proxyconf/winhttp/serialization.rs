@@ -45,6 +45,8 @@ pub fn serialize<W: Write>(config: &types::ProxyConfig, writer: W) -> Result<()>
     string_serialization::write(&mut buffered, &config.manual_proxy_address)?;
     string_serialization::write(&mut buffered, &config.manual_proxy_bypass_list)?;
 
+    buffered.flush()?;
+
     return Ok(());
 }
 
