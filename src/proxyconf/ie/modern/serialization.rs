@@ -25,6 +25,8 @@ use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std::io::{BufReader, BufWriter, Read, Write};
 use ::string_serialization;
 
+const VERSION: u32 = 0x46u32;
+
 fn mk_bit_field(config: &types::FullConfig) -> u32 {
     let mut conf = 0x01u32;
 
@@ -44,7 +46,7 @@ fn mk_bit_field(config: &types::FullConfig) -> u32 {
 pub fn serialize<W: Write>(config: &types::FullConfig, writer: W) -> Result<()> {
     let mut buffered = BufWriter::new(writer);
 
-    buffered.write_u32::<LittleEndian>(0x46u32)?;
+    buffered.write_u32::<LittleEndian>(VERSION)?;
     buffered.write_u32::<LittleEndian>(config.counter)?;
     buffered.write_u32::<LittleEndian>(mk_bit_field(&config))?;
 
@@ -86,7 +88,7 @@ pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::FullConfig> {
     let mut buffered = BufReader::new(reader);
 
     let version = buffered.read_u32::<LittleEndian>()?;
-    if version != 0x46u32 {
+    if version != VERSION {
         bail!(ErrorKind::InvalidVersion(version));
     }
 
@@ -97,4 +99,64 @@ pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::FullConfig> {
         counter,
         config,
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ::hex::FromHex;
+
+    #[test]
+    fn deserialize_no_proxy() {
+        let data = "460000003A000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000".from_hex().unwrap();
+
+        let config = deserialize(&data[..]).unwrap();
+        assert_eq!(config.counter, 58);
+        assert_eq!(config.config.automatically_detect_settings, false);
+        assert_eq!(config.config.use_manual_proxy, false);
+        assert_eq!(config.config.manual_proxy_address, String::from(""));
+        assert_eq!(config.config.manual_proxy_bypass_list, String::from(""));
+        assert_eq!(config.config.use_setup_script, false);
+        assert_eq!(config.config.setup_script_address, String::from(""));
+
+        let mut roundtrip = Vec::new();
+        serialize(&config, &mut roundtrip).unwrap();
+        assert_eq!(roundtrip, data);
+    }
+
+    #[test]
+    fn deserialize_some_proxy() {
+        let data ="46000000400000000F0000000D000000676F6F676C652E636F6D3A34320B0000004C6F6C3B3C6C6F63616C3E11000000687474703A2F2F676F6F676C652E66722F0000000000000000000000000000000000000000000000000000000000000000".from_hex().unwrap();
+
+        let config = deserialize(&data[..]).unwrap();
+        assert_eq!(config.counter, 64);
+        assert_eq!(config.config.automatically_detect_settings, true);
+        assert_eq!(config.config.use_manual_proxy, true);
+        assert_eq!(config.config.manual_proxy_address, String::from("google.com:42"));
+        assert_eq!(config.config.manual_proxy_bypass_list, String::from("Lol;<local>"));
+        assert_eq!(config.config.use_setup_script, true);
+        assert_eq!(config.config.setup_script_address, String::from("http://google.fr/"));
+
+        let mut roundtrip = Vec::new();
+        serialize(&config, &mut roundtrip).unwrap();
+        assert_eq!(roundtrip, data);
+    }
+
+    #[test]
+    fn deserialize_some_proxy_not_used() {
+        let data ="4600000044000000010000000D000000676F6F676C652E636F6D3A34320B0000004C6F6C3B3C6C6F63616C3E11000000687474703A2F2F676F6F676C652E66722F0000000000000000000000000000000000000000000000000000000000000000".from_hex().unwrap();
+
+        let config = deserialize(&data[..]).unwrap();
+        assert_eq!(config.counter, 68);
+        assert_eq!(config.config.automatically_detect_settings, false);
+        assert_eq!(config.config.use_manual_proxy, false);
+        assert_eq!(config.config.manual_proxy_address, String::from("google.com:42"));
+        assert_eq!(config.config.manual_proxy_bypass_list, String::from("Lol;<local>"));
+        assert_eq!(config.config.use_setup_script, false);
+        assert_eq!(config.config.setup_script_address, String::from("http://google.fr/"));
+
+        let mut roundtrip = Vec::new();
+        serialize(&config, &mut roundtrip).unwrap();
+        assert_eq!(roundtrip, data);
+    }
 }

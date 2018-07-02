@@ -81,12 +81,11 @@ pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::ProxyConfig> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ::hex::FromHex;
 
     #[test]
     fn deserialize_no_proxy() {
-        let data: Vec<u8> = vec![0x28u8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00];
+        let data = "2800000000000000010000000000000000000000".from_hex().unwrap();
 
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.use_manual_proxy, false);
@@ -100,11 +99,7 @@ mod tests {
 
     #[test]
     fn deserialize_some_proxy() {
-        let data: Vec<u8> = vec![0x28u8, 0x00u8, 0x00u8, 0x00u8, 0x00u8, 0x00u8,
-                                 0x00u8, 0x00u8, 0x03u8, 0x00u8, 0x00u8, 0x00u8,
-                                 0x04u8, 0x00u8, 0x00u8, 0x00u8, 0x61u8, 0x3Au8,
-                                 0x34u8, 0x32u8, 0x04u8, 0x00u8, 0x00u8, 0x00u8,
-                                 0x2Au8, 0x2Eu8, 0x34u8, 0x32u8];
+        let data ="28000000000000000300000004000000613A3432040000002A2E3432".from_hex().unwrap();
 
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.use_manual_proxy, true);
