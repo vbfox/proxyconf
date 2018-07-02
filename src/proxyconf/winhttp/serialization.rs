@@ -25,6 +25,8 @@ use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std::io::{BufReader, BufWriter, Read, Write};
 use ::string_serialization;
 
+const VERSION: u32 = 0x28u32;
+
 fn mk_bit_field(config: &types::ProxyConfig) -> u32 {
     let mut conf = 0x01u32;
 
@@ -38,7 +40,7 @@ fn mk_bit_field(config: &types::ProxyConfig) -> u32 {
 pub fn serialize<W: Write>(config: &types::ProxyConfig, writer: W) -> Result<()> {
     let mut buffered = BufWriter::new(writer);
 
-    buffered.write_u32::<LittleEndian>(0x28u32)?;
+    buffered.write_u32::<LittleEndian>(VERSION)?;
     buffered.write_u32::<LittleEndian>(0x0u32)?; // Unknown byte
     buffered.write_u32::<LittleEndian>(mk_bit_field(&config))?;
 
@@ -69,9 +71,48 @@ pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::ProxyConfig> {
     let mut buffered = BufReader::new(reader);
 
     let version = buffered.read_u32::<LittleEndian>()?;
-    if version != 0x28u32 {
+    if version != VERSION {
         bail!(ErrorKind::InvalidVersion(version));
     }
 
     return Ok(deserialize_config(buffered)?);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn deserialize_no_proxy() {
+        let data: Vec<u8> = vec![0x28u8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00];
+
+        let config = deserialize(&data[..]).unwrap();
+        assert_eq!(config.use_manual_proxy, false);
+        assert_eq!(config.manual_proxy_address, String::from(""));
+        assert_eq!(config.manual_proxy_bypass_list, String::from(""));
+
+        let mut roundtrip = Vec::new();
+        serialize(&config, &mut roundtrip).unwrap();
+        assert_eq!(roundtrip, data);
+    }
+
+    #[test]
+    fn deserialize_some_proxy() {
+        let data: Vec<u8> = vec![0x28u8, 0x00u8, 0x00u8, 0x00u8, 0x00u8, 0x00u8,
+                                 0x00u8, 0x00u8, 0x03u8, 0x00u8, 0x00u8, 0x00u8,
+                                 0x04u8, 0x00u8, 0x00u8, 0x00u8, 0x61u8, 0x3Au8,
+                                 0x34u8, 0x32u8, 0x04u8, 0x00u8, 0x00u8, 0x00u8,
+                                 0x2Au8, 0x2Eu8, 0x34u8, 0x32u8];
+
+        let config = deserialize(&data[..]).unwrap();
+        assert_eq!(config.use_manual_proxy, true);
+        assert_eq!(config.manual_proxy_address, String::from("a:42"));
+        assert_eq!(config.manual_proxy_bypass_list, String::from("*.42"));
+
+        let mut roundtrip = Vec::new();
+        serialize(&config, &mut roundtrip).unwrap();
+        assert_eq!(roundtrip, data);
+    }
 }
