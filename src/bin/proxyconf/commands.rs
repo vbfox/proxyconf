@@ -2,16 +2,25 @@ use proxyconf::ie;
 
 use write_config;
 
+fn set_ie_legacy_config(config: &ie::legacy::ProxyConfig) {
+    ie::legacy::registry::write(config.clone()).unwrap();
+}
+
 fn set_ie_modern_config(config: &ie::modern::ProxyConfig) {
     let location = ie::modern::registry::get_current_user_location();
     ie::modern::registry::write(&location, config.clone()).unwrap();
+}
+
+fn set_ie_config(config: &ie::modern::ProxyConfig) {
+    set_ie_modern_config(&config);
+    set_ie_legacy_config(&config.to_owned().to_legacy());
 
     println!("Configuration changed to: ");
     write_config::ie_modern(&config);
 }
 
 pub fn set_server(server: &str, bypass_list: &str) {
-    set_ie_modern_config(&ie::modern::ProxyConfig {
+    set_ie_config(&ie::modern::ProxyConfig {
         use_manual_proxy: true,
         manual_proxy_address: server.into(),
         manual_proxy_bypass_list: bypass_list.into(),
@@ -20,7 +29,7 @@ pub fn set_server(server: &str, bypass_list: &str) {
 }
 
 pub fn set_setup_script(setup_script: &str) {
-    set_ie_modern_config(&ie::modern::ProxyConfig {
+    set_ie_config(&ie::modern::ProxyConfig {
         use_setup_script: true,
         setup_script_address: setup_script.into(),
         ..ie::modern::empty_config()
@@ -28,14 +37,14 @@ pub fn set_setup_script(setup_script: &str) {
 }
 
 pub fn set_auto_detect() {
-    set_ie_modern_config(&ie::modern::ProxyConfig {
+    set_ie_config(&ie::modern::ProxyConfig {
         automatically_detect_settings: true,
         ..ie::modern::empty_config()
     });
 }
 
 pub fn set_no_proxy() {
-    set_ie_modern_config(&ie::modern::ProxyConfig {
+    set_ie_config(&ie::modern::ProxyConfig {
         ..ie::modern::empty_config()
     });
 }
@@ -55,11 +64,6 @@ pub fn ie_modern_show() {
 pub fn show() {
     println!("Internet explorer: ");
     ie_modern_show();
-
-    println!();
-    println!("Internet explorer (legacy): ");
-    let legacy_conf = ie::legacy::registry::read().unwrap();
-    write_config::ie_legacy(&legacy_conf);
 
     println!();
     println!("WinHTTP (System wide): ");
