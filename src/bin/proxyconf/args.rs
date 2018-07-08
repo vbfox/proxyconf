@@ -72,7 +72,7 @@ pub fn get<'a, 'b>() -> App<'a, 'b> {
         .about("Windows proxy configuration from the command line")
         .subcommand(
             SubCommand::with_name("set")
-                .about("Set the proxy configuration")
+                .about("Set the current user proxy configuration")
                 .no_proxy()
                 .auto_detect()
                 .setup_script()
@@ -80,17 +80,12 @@ pub fn get<'a, 'b>() -> App<'a, 'b> {
         )
         .subcommand(
             SubCommand::with_name("show")
-                .about("Show the current proxy configuration"))
+                .about("Show the current proxy configuration")
+        )
         .subcommand(
             SubCommand::with_name("winhttp")
-                .about("Specific WinHTTP commands")
-                .subcommand(
-                    SubCommand::with_name("set")
-                        .about("Set the WinHTTP configuration")
-                        .no_proxy()
-                        .manual_proxy(),
-                )
-                .subcommand(
-                    SubCommand::with_name("show")
-                        .about("Show the current WinHTTP configuration")));
+                .about("Set the system-wide WinHTTP configuration")
+                .no_proxy()
+                .manual_proxy(),
+        );
 }

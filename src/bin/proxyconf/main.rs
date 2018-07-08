@@ -33,18 +33,12 @@ fn main() {
             on_unexpected();
         }
     } else if let Some(winhttp_matches) = matches.subcommand_matches("winhttp") {
-        if let Some(_) = winhttp_matches.subcommand_matches("show") {
-            commands::winhttp::show();
-        } else if let Some(set_matches) = winhttp_matches.subcommand_matches("set") {
-            if let Some(_) = set_matches.subcommand_matches("no-proxy") {
-                commands::winhttp::set_no_proxy();
-            } else if let Some(proxy_matches) = set_matches.subcommand_matches("proxy") {
-                let server = proxy_matches.value_of("server").unwrap();
-                let bypass_list = proxy_matches.value_of("bypass").unwrap_or("<local>");
-                commands::winhttp::set_server(server, bypass_list);
-            } else {
-                on_unexpected();
-            }
+        if let Some(_) = winhttp_matches.subcommand_matches("no-proxy") {
+            commands::winhttp::set_no_proxy();
+        } else if let Some(proxy_matches) = winhttp_matches.subcommand_matches("proxy") {
+            let server = proxy_matches.value_of("server").unwrap();
+            let bypass_list = proxy_matches.value_of("bypass").unwrap_or("<local>");
+            commands::winhttp::set_server(server, bypass_list);
         } else {
             on_unexpected();
         }
