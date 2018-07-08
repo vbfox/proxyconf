@@ -68,6 +68,14 @@ pub fn read_full() -> Result<types::FullConfig> {
     return Ok(conf);
 }
 
+pub fn get_next_counter() -> u32 {
+    let full_result = read_full();
+    match full_result {
+        Ok(full) => full.counter + 1,
+        _ => 0
+    }
+}
+
 pub fn read() -> Result<types::ProxyConfig> {
     return Ok(read_full()?.config);
 }
@@ -75,6 +83,7 @@ pub fn read() -> Result<types::ProxyConfig> {
 pub fn write(config: types::ProxyConfig) -> Result<()> {
     let full_before = read_full()?;
     let full_after = types::FullConfig {
+        version: super::IE7_VERSION,
         counter: full_before.counter + 1,
         config,
     };
@@ -91,6 +100,7 @@ where
     let after = updater(full_before.config);
 
     let full_after = types::FullConfig {
+        version: super::IE7_VERSION,
         counter: full_before.counter + 1,
         config: after,
     };

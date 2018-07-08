@@ -41,7 +41,7 @@ pub fn serialize<W: Write>(config: &types::ProxyConfig, writer: W) -> Result<()>
     let mut buffered = BufWriter::new(writer);
 
     buffered.write_u32::<LittleEndian>(VERSION)?;
-    buffered.write_u32::<LittleEndian>(0x0u32)?; // Unknown byte
+    buffered.write_u32::<LittleEndian>(0x0u32)?; // Unknown u32
     buffered.write_u32::<LittleEndian>(mk_bit_field(&config))?;
 
     string_serialization::write(&mut buffered, &config.manual_proxy_address)?;
@@ -53,7 +53,7 @@ pub fn serialize<W: Write>(config: &types::ProxyConfig, writer: W) -> Result<()>
 }
 
 fn deserialize_config<R: Read>(mut reader: R) -> Result<types::ProxyConfig> {
-    reader.read_u32::<LittleEndian>()?; // Unknown byte
+    reader.read_u32::<LittleEndian>()?; // Unknown u32
 
     let conf = reader.read_u32::<LittleEndian>()?;
     let use_manual_proxy = (conf & 0x02) != 0x00;

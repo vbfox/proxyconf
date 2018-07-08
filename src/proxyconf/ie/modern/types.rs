@@ -21,6 +21,15 @@ pub fn empty_config() -> ProxyConfig {
 
 #[derive(Debug, Clone)]
 pub struct FullConfig {
+    pub version: u32,
     pub counter: u32,
     pub config: ProxyConfig,
+}
+
+pub fn empty_full_config() -> FullConfig {
+    FullConfig {
+        version: super::IE7_VERSION,
+        counter: 0,
+        config: empty_config(),
+    }
 }
