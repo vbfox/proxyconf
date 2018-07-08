@@ -82,7 +82,11 @@ pub fn write_full(location: &Location, config: &types::FullConfig) -> Result<()>
     let mut bytes = Vec::new();
     serialization::serialize(config, &mut bytes)?;
 
-    write_raw(location, &bytes, true)?;
+    match location.target {
+        Target::System => write_raw(location, &bytes, true)?,
+        Target::CurrentUser => {}
+    }
+
     write_raw(location, &bytes, false)?;
 
     return Ok(());
