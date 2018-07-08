@@ -1,6 +1,6 @@
 [package]
 name = "proxyconf"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["Julien Roncaglia <julien@roncaglia.fr>"]
 license = "MIT"
 keywords = ["windows", "docker", "proxy", "config", "cli"]
