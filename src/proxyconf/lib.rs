@@ -8,7 +8,6 @@ extern crate winreg;
 pub mod ie;
 mod registry_helpers;
 mod string_serialization;
-pub mod winhttp;
 
 #[cfg(test)]
 mod hex;

@@ -43,6 +43,20 @@ pub struct Location {
     pub connection_name: String,
 }
 
+pub fn get_current_user_location() -> Location{
+    Location {
+        target: Target::CurrentUser,
+        connection_name: String::from(DEFAULT_CONNECTION_NAME),
+    }
+}
+
+pub fn get_winhttp_location() -> Location{
+    Location {
+        target: Target::System,
+        connection_name: String::from(WINHTTP_CONNECTION_NAME),
+    }
+}
+
 fn open_key(target: &Target, write: bool, wow6432: bool) -> Result<RegKey> {
     let root_key = match target {
         Target::System => RegKey::predef(HKEY_LOCAL_MACHINE),
