@@ -29,7 +29,7 @@ fn bool_to_u32(b: bool) -> u32 {
     };
 }
 
-pub fn write(config: types::ProxyConfig) -> Result<()> {
+pub fn write(config: &types::ProxyConfig) -> Result<()> {
     let key = open_key(true)?;
     key.set_value("ProxyEnable", &bool_to_u32(config.use_manual_proxy))?;
 
@@ -47,8 +47,8 @@ pub fn write(config: types::ProxyConfig) -> Result<()> {
         _ => key.set_value("ProxyOverride", &config.manual_proxy_bypass_list)?,
     }
 
-    match config.setup_script_address {
-        Some(address) => key.set_value("AutoConfigURL", &address)?,
+    match &config.setup_script_address {
+        Some(address) => key.set_value("AutoConfigURL", address)?,
         None => {
             let _ = key.delete_value("AutoConfigURL");
         }

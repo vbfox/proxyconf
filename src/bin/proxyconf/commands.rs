@@ -41,7 +41,7 @@ pub mod main {
     use write_config;
 
     fn set_legacy_config(config: &legacy::ProxyConfig) {
-        legacy::registry::write(config.clone()).unwrap();
+        legacy::registry::write(&config).unwrap();
     }
 
     fn set_modern_config(config: &modern::ProxyConfig) {
