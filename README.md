@@ -14,103 +14,80 @@ Using command-line only windows version (Core or Nano) behind a proxy can be pro
 FROM microsoft/nanoserver:1803
 
 COPY proxyconf.exe .
-RUN proxyconf set proxy 10.0.0.1:8080 "*.my-company;<local>"
+RUN proxyconf set proxy 10.0.0.1:8080 "*.my-company;<local>" \
+    && proxyconf winhttp proxy 10.0.0.1:8080 "*.my-company;<local>"
 ```
 
 ## Command line
 
 * `proxyconf show` Show the current proxy configuration
-* `proxyconf set` Set the proxy configuration. One of theses must be specified:
+* `proxyconf set` Set the current user proxy configuration. One of theses must be specified:
   * `no-proxy` No proxy should be used.
   * `auto-detect` Automatically detect settings. Windows will use the [Web Proxy Autodiscovery Protocol][wpad] or fallback to direct connection
-  * `proxy <ADDRESS:PORT> [BYPASS_LIST]`
-    * `ADDRESS:PORT` The proxy server and optional port to use.
-    * `BYPASS_LIST` Optional list of addresses that bypass the proxy separated by semicolons (`;`).<br/>
-      Use `<local>` to bypass all short name hosts.<br/>
-      Default to `<local>` if not specified.
+  * `proxy <ADDRESS:PORT> [BYPASS_LIST]` Use an hardcoded proxy (or proxies, see below) with an optional bypass list.
   * `setup-script <URL>` Use [Proxy auto-config (PAC)][pac] from the specified URL.
+* `proxyconf winhttp` Set the system-wide winhttp proxy configuration. One of theses must be specified:
+  * `no-proxy` No proxy should be used.
+  * `proxy <ADDRESS:PORT> [BYPASS_LIST]` Use an hardcoded proxy (or proxies, see below) with an optional bypass list.
+
+Common values:
+  * `ADDRESS:PORT` The proxy server and optional port to use.<br/>
+    Can also be a list of `protocol=address:port` separated by semicolons (`;`). The protocols are `http`, `https`, `ftp` and `socks`. <br/>
+  * `BYPASS_LIST` Optional list of addresses that bypass the proxy separated by semicolons (`;`).<br/>
+  Use `<local>` to bypass all short name hosts.<br/>
+  Default to `<local>` if not specified.
 
 [wpad]: https://en.wikipedia.org/wiki/Web_Proxy_Auto-Discovery_Protocol
 [pac]: https://en.wikipedia.org/wiki/Proxy_auto-config
 
-## Technical information
+## What can be changed
 
-This tool set some specific keys in the registry, with the following format:
-
-### Internet Explorer settings
+### Internet options
 
 Per-user settings (by default, there is a registry flag to have system ones) used by Internet Explorer initially and now by most applications.
 
 They can be edited in the GUI from Internet Explorer settings or on recent versions of Windows directly from the control panel.
 
-They are present twice in the registry :
+### WinHTTP settings
 
-#### Modern binary value
+A binary key storing settings for applications using the [WinHTTP][winhttp] programming interface. It doesn't support much more than a static proxy but it's supported by services like windows update.
 
-This value is the one that is used by Internet Explorer and most other software. It's stored under the registry key `HKCU:SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Connections` as a REG_BINARY with the name `DefaultConnectionSettings`.
+[winhttp]: https://docs.microsoft.com/en-us/windows/desktop/WinHttp/about-winhttp
+
+## Technical information
+
+This tool set some specific keys in the registry, with the following format:
+
+### Binary/Modern Internet Options
+
+Stored as a REG_BINARY value.
+
+* One key per connection exists under `HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Connections` with the default one for LAN under `DefaultConnectionSettings`.
+* If `HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\CurrentVersion\Internet Settings` key `ProxySettingsPerUser` is `1` (DWORD) the same location is used in `HKEY_LOCAL_MACHINE` instead and the settings are global.
+* The WinHTTP settings use an old version in a value named `WinHttpSettings` under the key `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Connections`
+
+I know of 3 versions:
+* **0x28** Used by `netsh winhttp`
+* **0x3C** Used in IE 6
+* **0x46** Used since IE 7 and still used in IE 11 / Windows 10
 
 The (undocumented) format is (With all values in little endian):
-* `version: u32` Seem to be a version number *unconfirmed*.
+* `version: u32` Version number
 * `counter: u32` An incremential counter used to detect changes.
 * `configuration_bits: u32` A bit field with the following bits:
   * `1` Always set
   * `2` Use manual proxy
-  * `3` Use setup script
-  * `4` Automatically detect settings
+  * `3` Use setup script *(version >= 0x3C)*
+  * `4` Automatically detect settings *(version >= 0x3C)*
 * `proxy_address_len: u32` Length of the proxy address string.
 * `proxy_addres: Vec<u8>` Proxy address (ASCII).
 * `bypass_list_len: u32` Length of the bypass list string.
 * `bypass_list: Vec<u8>` Bypass list (ASCII).
-* `setup_script_len: u32` Length of the setup script url string.
-* `setup_script: Vec<u8>` Setup script url (ASCII).
+* `setup_script_len: u32` Length of the setup script url string. *(version >= 0x3C)*
+* `setup_script: Vec<u8>` Setup script url (ASCII). *(version >= 0x3C)*
+* 28 unknown bytes for version 0x3C, 32 for version 0x46
 
-#### Legacy values
+### Values/Legacy Internet Options
 
 They aren't used anymore but are kept for applications that might access them directly, the GUI set them when a change is done but doesn't read it.
 They are stored in the registry key `HKCU:SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Connections`.
-
-SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings
-
-### WinHTTP settings
-
-This value is global to the system and used by some services like windows update. It's stored under the registry key `HKLM:SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Connections` as a REG_BINARY with the name `WinHttpSettings`.
-
-They are stored in the registry key `HKLM:SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Connections` in the REG_BINARY `WinHttpSettings` value.
-
-The (undocumented) format is (With all values in little endian):
-* `version: u32` Version number.
-* `unknown: u32` *unknown*
-* `configuration_bits: u32` A bit field with the following bits:
-  * `1` Always set
-  * `2` Use manual proxy
-  * `proxy_address_len: u32` Length of the proxy address string.
-  * `proxy_addres: Vec<u8>` Proxy address (ASCII).
-  * `bypass_list_len: u32` Length of the bypass list string.
-  * `bypass_list: Vec<u8>` Bypass list (ASCII).
-
-
------------------------
-
-Win XP / IE 6
-```
-Auto
-
-    DefaultConnectionSettings   REG_BINARY      3C0000000200000009000000000000000000000000000000050000000000000090D83A6BB416D40101000000C0A8011D0000000000000000
-
-Auto + Script
-    DefaultConnectionSettings   REG_BINARY      3C000000030000000D000000000000000000000011000000687474703A2F2F7363726970742E636F6D050000000000000090D83A6BB416D40101000000C0A8011D0000000000000000
-
-Manual proxy
-    DefaultConnectionSettings   REG_BINARY      3C00000004000000030000000D000000676F6F676C652E636F6D3A34320000000011000000687474703A2F2F7363726970742E636F6D010000000000000090D83A6BB416D40101000000C0A8011D0000000000000000
-
-Nothing
-    DefaultConnectionSettings   REG_BINARY      3C0000000500000001000000000000000000000011000000687474703A2F2F7363726970742E636F6D010000000000000090D83A6BB416D40101000000C0A8011D0000000000000000
-
-From empty
-    SavedLegacySettings REG_BINARY      3C000000010000000900000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-
-Protocols
-    SavedLegacySettings REG_BINARY      3C000000090000000B000000410000006674703D6674703A333B676F706865723D676F706865723A343B687474703D687474703A313B68747470733D68747470733A323B736F636B733D736F636B733A35070000003C6C6F63616C3E0000000000000000
-000000000000000000000000000000000000000000000000
-
-```
