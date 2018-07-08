@@ -21,10 +21,10 @@ mod errors {
 pub use self::errors::*;
 
 use super::types;
+use super::{IE6_VERSION, IE7_VERSION, WINHTTP_VERSION};
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std::io::{BufReader, BufWriter, Read, Write};
-use ::string_serialization;
-use super::{WINHTTP_VERSION, IE6_VERSION, IE7_VERSION};
+use string_serialization;
 
 fn mk_bit_field(version: u32, config: &types::FullConfig) -> u32 {
     let mut conf = 0x01;
@@ -63,7 +63,10 @@ pub fn serialize<W: Write>(config: &types::FullConfig, writer: W) -> Result<()> 
     if version >= IE6_VERSION {
         string_serialization::write(&mut buffered, &config.config.setup_script_address)?;
 
-        let unknown_bytes = match version { IE6_VERSION => 28, _ => 32 };
+        let unknown_bytes = match version {
+            IE6_VERSION => 28,
+            _ => 32,
+        };
         for _ in 0..unknown_bytes {
             buffered.write_u8(0)?;
         }
@@ -117,11 +120,13 @@ pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::FullConfig> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ::hex::FromHex;
+    use hex::FromHex;
 
     #[test]
     fn winhttp_deserialize_no_proxy() {
-        let data = "2800000000000000010000000000000000000000".from_hex().unwrap();
+        let data = "2800000000000000010000000000000000000000"
+            .from_hex()
+            .unwrap();
 
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.version, WINHTTP_VERSION);
@@ -137,7 +142,9 @@ mod tests {
 
     #[test]
     fn winhttp_deserialize_some_proxy() {
-        let data ="28000000000000000300000004000000613A3432040000002A2E3432".from_hex().unwrap();
+        let data = "28000000000000000300000004000000613A3432040000002A2E3432"
+            .from_hex()
+            .unwrap();
 
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.version, WINHTTP_VERSION);
@@ -198,10 +205,19 @@ mod tests {
         assert_eq!(config.counter, 64);
         assert_eq!(config.config.automatically_detect_settings, true);
         assert_eq!(config.config.use_manual_proxy, true);
-        assert_eq!(config.config.manual_proxy_address, String::from("google.com:42"));
-        assert_eq!(config.config.manual_proxy_bypass_list, String::from("Lol;<local>"));
+        assert_eq!(
+            config.config.manual_proxy_address,
+            String::from("google.com:42")
+        );
+        assert_eq!(
+            config.config.manual_proxy_bypass_list,
+            String::from("Lol;<local>")
+        );
         assert_eq!(config.config.use_setup_script, true);
-        assert_eq!(config.config.setup_script_address, String::from("http://google.fr/"));
+        assert_eq!(
+            config.config.setup_script_address,
+            String::from("http://google.fr/")
+        );
 
         let mut roundtrip = Vec::new();
         serialize(&config, &mut roundtrip).unwrap();
@@ -217,10 +233,19 @@ mod tests {
         assert_eq!(config.counter, 68);
         assert_eq!(config.config.automatically_detect_settings, false);
         assert_eq!(config.config.use_manual_proxy, false);
-        assert_eq!(config.config.manual_proxy_address, String::from("google.com:42"));
-        assert_eq!(config.config.manual_proxy_bypass_list, String::from("Lol;<local>"));
+        assert_eq!(
+            config.config.manual_proxy_address,
+            String::from("google.com:42")
+        );
+        assert_eq!(
+            config.config.manual_proxy_bypass_list,
+            String::from("Lol;<local>")
+        );
         assert_eq!(config.config.use_setup_script, false);
-        assert_eq!(config.config.setup_script_address, String::from("http://google.fr/"));
+        assert_eq!(
+            config.config.setup_script_address,
+            String::from("http://google.fr/")
+        );
 
         let mut roundtrip = Vec::new();
         serialize(&config, &mut roundtrip).unwrap();

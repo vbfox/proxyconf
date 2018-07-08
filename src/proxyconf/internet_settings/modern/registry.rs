@@ -34,7 +34,7 @@ pub const WINHTTP_CONNECTION_NAME: &'static str = "WinHttpSettings";
 #[derive(Debug, Clone)]
 pub enum Target {
     System,
-    CurrentUser
+    CurrentUser,
 }
 
 #[derive(Debug, Clone)]
@@ -43,14 +43,14 @@ pub struct Location {
     pub connection_name: String,
 }
 
-pub fn get_current_user_location() -> Location{
+pub fn get_current_user_location() -> Location {
     Location {
         target: Target::CurrentUser,
         connection_name: String::from(DEFAULT_CONNECTION_NAME),
     }
 }
 
-pub fn get_winhttp_location() -> Location{
+pub fn get_winhttp_location() -> Location {
     Location {
         target: Target::System,
         connection_name: String::from(WINHTTP_CONNECTION_NAME),
@@ -60,7 +60,7 @@ pub fn get_winhttp_location() -> Location{
 fn open_key(target: &Target, write: bool, wow6432: bool) -> Result<RegKey> {
     let root_key = match target {
         Target::System => RegKey::predef(HKEY_LOCAL_MACHINE),
-        Target::CurrentUser =>  RegKey::predef(HKEY_CURRENT_USER),
+        Target::CurrentUser => RegKey::predef(HKEY_CURRENT_USER),
     };
     let access = if write { KEY_ALL_ACCESS } else { KEY_READ };
     let key_path = if wow6432 { KEY_PATH_WOW6432 } else { KEY_PATH };
@@ -112,7 +112,7 @@ pub fn get_next_counter(location: &Location) -> u32 {
     let full_result = read_full(location);
     match full_result {
         Ok(full) => full.counter + 1,
-        _ => 0
+        _ => 0,
     }
 }
 

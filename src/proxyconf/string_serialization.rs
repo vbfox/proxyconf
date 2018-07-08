@@ -27,7 +27,7 @@ fn usize_to_u32(a: usize) -> Result<u32> {
     if a > std::u32::MAX as usize {
         return Err(ErrorKind::InvalidSize(a).into());
     } else {
-        return Ok(a as u32)
+        return Ok(a as u32);
     }
 }
 
@@ -49,7 +49,7 @@ pub fn read<R: Read>(reader: &mut R) -> Result<String> {
 
             let s = std::str::from_utf8(&bytes)?;
             return Ok(String::from(s));
-        },
+        }
         Err(e) => {
             if e.kind() == io::ErrorKind::UnexpectedEof {
                 return Ok(String::from(""));

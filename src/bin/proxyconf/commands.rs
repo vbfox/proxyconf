@@ -36,8 +36,8 @@ pub mod winhttp {
 }
 
 pub mod main {
-    use proxyconf::internet_settings::{modern, legacy};
     use super::winhttp;
+    use proxyconf::internet_settings::{legacy, modern};
     use write_config;
 
     fn set_legacy_config(config: &legacy::ProxyConfig) {

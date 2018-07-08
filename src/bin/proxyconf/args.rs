@@ -61,7 +61,7 @@ impl<'a, 'b> CommonCommands<'a, 'b> for App<'a, 'b> {
                         .takes_value(true)
                         .required(false),
                 ),
-        )
+        );
     }
 }
 
@@ -78,10 +78,7 @@ pub fn get<'a, 'b>() -> App<'a, 'b> {
                 .setup_script()
                 .manual_proxy(),
         )
-        .subcommand(
-            SubCommand::with_name("show")
-                .about("Show the current proxy configuration")
-        )
+        .subcommand(SubCommand::with_name("show").about("Show the current proxy configuration"))
         .subcommand(
             SubCommand::with_name("winhttp")
                 .about("Set the system-wide WinHTTP configuration")
