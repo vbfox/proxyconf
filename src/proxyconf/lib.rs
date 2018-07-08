@@ -5,7 +5,7 @@ extern crate error_chain;
 extern crate byteorder;
 extern crate winreg;
 
-pub mod ie;
+pub mod internet_settings;
 mod registry_helpers;
 mod string_serialization;
 

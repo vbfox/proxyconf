@@ -1,97 +1,104 @@
-use proxyconf::ie;
+pub mod winhttp {
+    use proxyconf::internet_settings::modern;
+    use write_config;
 
-use write_config;
+    pub fn show() {
+        let location = modern::registry::get_winhttp_location();
+        let conf = modern::registry::read(&location).unwrap();
+        write_config::ie_modern(&conf);
+    }
 
-fn set_ie_legacy_config(config: &ie::legacy::ProxyConfig) {
-    ie::legacy::registry::write(config.clone()).unwrap();
+    fn set_config(config: &modern::ProxyConfig) {
+        let location = modern::registry::get_winhttp_location();
+        let full_config = modern::FullConfig {
+            version: modern::WINHTTP_VERSION,
+            counter: 0,
+            config: config.clone(),
+        };
+        modern::registry::write_full(&location, &full_config).unwrap();
+
+        println!("Configuration changed to: ");
+        write_config::ie_modern(&config);
+    }
+
+    pub fn set_server(server: &str, bypass_list: &str) {
+        set_config(&modern::ProxyConfig {
+            use_manual_proxy: true,
+            manual_proxy_address: server.into(),
+            manual_proxy_bypass_list: bypass_list.into(),
+            ..modern::empty_config()
+        });
+    }
+
+    pub fn set_no_proxy() {
+        set_config(&modern::empty_config());
+    }
 }
 
-fn set_ie_modern_config(config: &ie::modern::ProxyConfig) {
-    let location = ie::modern::registry::get_current_user_location();
-    ie::modern::registry::write(&location, config.clone()).unwrap();
-}
+pub mod main {
+    use proxyconf::internet_settings::{modern, legacy};
+    use super::winhttp;
+    use write_config;
 
-fn set_ie_config(config: &ie::modern::ProxyConfig) {
-    set_ie_modern_config(&config);
-    set_ie_legacy_config(&config.to_owned().to_legacy());
+    fn set_legacy_config(config: &legacy::ProxyConfig) {
+        legacy::registry::write(config.clone()).unwrap();
+    }
 
-    println!("Configuration changed to: ");
-    write_config::ie_modern(&config);
-}
+    fn set_modern_config(config: &modern::ProxyConfig) {
+        let location = modern::registry::get_current_user_location();
+        modern::registry::write(&location, config.clone()).unwrap();
+    }
 
-pub fn set_server(server: &str, bypass_list: &str) {
-    set_ie_config(&ie::modern::ProxyConfig {
-        use_manual_proxy: true,
-        manual_proxy_address: server.into(),
-        manual_proxy_bypass_list: bypass_list.into(),
-        ..ie::modern::empty_config()
-    });
-}
+    fn set_config_and_show(config: &modern::ProxyConfig) {
+        set_modern_config(&config);
+        set_legacy_config(&config.to_owned().to_legacy());
 
-pub fn set_setup_script(setup_script: &str) {
-    set_ie_config(&ie::modern::ProxyConfig {
-        use_setup_script: true,
-        setup_script_address: setup_script.into(),
-        ..ie::modern::empty_config()
-    });
-}
+        println!("Configuration changed to: ");
+        write_config::ie_modern(&config);
+    }
 
-pub fn set_auto_detect() {
-    set_ie_config(&ie::modern::ProxyConfig {
-        automatically_detect_settings: true,
-        ..ie::modern::empty_config()
-    });
-}
+    pub fn set_server(server: &str, bypass_list: &str) {
+        set_config_and_show(&modern::ProxyConfig {
+            use_manual_proxy: true,
+            manual_proxy_address: server.into(),
+            manual_proxy_bypass_list: bypass_list.into(),
+            ..modern::empty_config()
+        });
+    }
 
-pub fn set_no_proxy() {
-    set_ie_config(&ie::modern::ProxyConfig {
-        ..ie::modern::empty_config()
-    });
-}
+    pub fn set_setup_script(setup_script: &str) {
+        set_config_and_show(&modern::ProxyConfig {
+            use_setup_script: true,
+            setup_script_address: setup_script.into(),
+            ..modern::empty_config()
+        });
+    }
 
-pub fn winhttp_show() {
-    let location = ie::modern::registry::get_winhttp_location();
-    let conf = ie::modern::registry::read(&location).unwrap();
-    write_config::ie_modern(&conf);
-}
+    pub fn set_auto_detect() {
+        set_config_and_show(&modern::ProxyConfig {
+            automatically_detect_settings: true,
+            ..modern::empty_config()
+        });
+    }
 
-pub fn ie_modern_show() {
-    let location = ie::modern::registry::get_current_user_location();
-    let conf = ie::modern::registry::read(&location).unwrap();
-    write_config::ie_modern(&conf);
-}
+    pub fn set_no_proxy() {
+        set_config_and_show(&modern::ProxyConfig {
+            ..modern::empty_config()
+        });
+    }
 
-pub fn show() {
-    println!("Internet explorer: ");
-    ie_modern_show();
+    fn modern_show() {
+        let location = modern::registry::get_current_user_location();
+        let conf = modern::registry::read(&location).unwrap();
+        write_config::ie_modern(&conf);
+    }
 
-    println!();
-    println!("WinHTTP (System wide): ");
-    winhttp_show();
-}
+    pub fn show() {
+        println!("Internet explorer: ");
+        modern_show();
 
-fn set_winhttp_config(config: &ie::modern::ProxyConfig) {
-    let location = ie::modern::registry::get_winhttp_location();
-    let full_config = ie::modern::FullConfig {
-        version: ie::modern::WINHTTP_VERSION,
-        counter: 0,
-        config: config.clone(),
-    };
-    ie::modern::registry::write_full(&location, &full_config).unwrap();
-
-    println!("Configuration changed to: ");
-    write_config::ie_modern(&config);
-}
-
-pub fn winhttp_set_server(server: &str, bypass_list: &str) {
-    set_winhttp_config(&ie::modern::ProxyConfig {
-        use_manual_proxy: true,
-        manual_proxy_address: server.into(),
-        manual_proxy_bypass_list: bypass_list.into(),
-        ..ie::modern::empty_config()
-    });
-}
-
-pub fn winhttp_set_no_proxy() {
-    set_winhttp_config(&ie::modern::empty_config());
+        println!();
+        println!("WinHTTP (System wide): ");
+        winhttp::show();
+    }
 }

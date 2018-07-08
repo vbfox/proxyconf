@@ -1,6 +1,6 @@
-use proxyconf::ie;
+use proxyconf::internet_settings;
 
-pub fn ie_modern(config: &ie::modern::ProxyConfig) {
+pub fn ie_modern(config: &internet_settings::modern::ProxyConfig) {
     if config.automatically_detect_settings {
         println!("    Automatically detect settings");
     } else if config.use_setup_script && config.setup_script_address.len() > 0 {

@@ -1,4 +1,4 @@
-use ::ie::legacy;
+use super::super::legacy;
 
 #[derive(Debug, Clone)]
 pub struct ProxyConfig {
