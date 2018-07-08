@@ -26,7 +26,10 @@ use winreg::{RegKey, RegValue};
 
 const KEY_PATH: &'static str =
     "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections";
+const KEY_PATH_WOW6432: &'static str =
+    "SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections";
 pub const DEFAULT_CONNECTION_NAME: &'static str = "DefaultConnectionSettings";
+pub const WINHTTP_CONNECTION_NAME: &'static str = "WinHttpSettings";
 
 #[derive(Debug, Clone)]
 pub enum Target {
@@ -40,22 +43,23 @@ pub struct Location {
     pub connection_name: String,
 }
 
-fn open_key(target: &Target, write: bool) -> Result<RegKey> {
+fn open_key(target: &Target, write: bool, wow6432: bool) -> Result<RegKey> {
     let root_key = match target {
         Target::System => RegKey::predef(HKEY_LOCAL_MACHINE),
         Target::CurrentUser =>  RegKey::predef(HKEY_CURRENT_USER),
     };
     let access = if write { KEY_ALL_ACCESS } else { KEY_READ };
-    let key = root_key.open_subkey_with_flags(KEY_PATH, access)?;
+    let key_path = if wow6432 { KEY_PATH_WOW6432 } else { KEY_PATH };
+    let key = root_key.open_subkey_with_flags(key_path, access)?;
     return Ok(key);
 }
 
-fn write_raw(location: &Location, bytes: Vec<u8>) -> Result<()> {
+fn write_raw(location: &Location, bytes: &Vec<u8>, wow6432: bool) -> Result<()> {
     let value = RegValue {
         vtype: REG_BINARY,
-        bytes,
+        bytes: bytes.to_owned(),
     };
-    let key = open_key(&location.target, true)?;
+    let key = open_key(&location.target, true, wow6432)?;
     key.set_raw_value(&location.connection_name, &value)?;
     return Ok(());
 }
@@ -63,12 +67,15 @@ fn write_raw(location: &Location, bytes: Vec<u8>) -> Result<()> {
 pub fn write_full(location: &Location, config: &types::FullConfig) -> Result<()> {
     let mut bytes = Vec::new();
     serialization::serialize(config, &mut bytes)?;
-    write_raw(location, bytes)?;
+
+    write_raw(location, &bytes, true)?;
+    write_raw(location, &bytes, false)?;
+
     return Ok(());
 }
 
 fn read_raw(location: &Location) -> Result<Vec<u8>> {
-    let key = open_key(&location.target, false)?;
+    let key = open_key(&location.target, false, false)?;
     let value = key.get_raw_value(&location.connection_name)?;
 
     match value.vtype {
