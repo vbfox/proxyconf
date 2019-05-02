@@ -31,7 +31,6 @@ impl From<::string_serialization::StringSerializationError> for SerializationErr
     }
 }
 
-
 use super::types;
 use super::{IE6_VERSION, IE7_VERSION, WINHTTP_VERSION};
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
@@ -57,7 +56,10 @@ fn mk_bit_field(version: u32, config: &types::FullConfig) -> u32 {
     conf
 }
 
-pub fn serialize<W: Write>(config: &types::FullConfig, writer: W) -> Result<(), SerializationError> {
+pub fn serialize<W: Write>(
+    config: &types::FullConfig,
+    writer: W,
+) -> Result<(), SerializationError> {
     let mut buffered = BufWriter::new(writer);
 
     let version = config.version;

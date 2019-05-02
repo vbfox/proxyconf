@@ -12,7 +12,6 @@ pub enum StringSerializationError {
     Utf8(#[fail(cause)] ::std::str::Utf8Error),
 }
 
-
 impl From<::std::io::Error> for StringSerializationError {
     fn from(error: ::std::io::Error) -> StringSerializationError {
         StringSerializationError::Io(error)
