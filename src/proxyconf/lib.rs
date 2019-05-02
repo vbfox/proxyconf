@@ -6,7 +6,9 @@ extern crate byteorder;
 extern crate winreg;
 
 pub mod internet_settings;
+pub mod envvars_settings;
 mod registry_helpers;
+mod envvars;
 mod string_serialization;
 
 #[cfg(test)]
