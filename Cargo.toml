@@ -22,6 +22,7 @@ failure = "0.1.5"
 lto = true
 panic = 'abort'
 opt-level = 'z'
+codegen-units = 1
 
 [lib]
 name = "proxyconf"
