@@ -43,6 +43,6 @@ fn main() {
             on_unexpected();
         }
     } else {
-        on_unexpected();
+        args::get().print_help().unwrap();
     }
 }

@@ -1,24 +1,36 @@
-mod errors {
-    error_chain! {
-        foreign_links {
-            Io(::std::io::Error);
-            Utf8(::std::str::Utf8Error);
-        }
+#[derive(Debug, Fail)]
+pub enum SerializationError {
+    #[fail(display = "Invalid registry settings version: {}", _0)]
+    InvalidVersion(u32),
 
-        links {
-            Serialization(::string_serialization::Error, ::string_serialization::ErrorKind);
-        }
+    #[fail(display = "{}", _0)]
+    Io(#[fail(cause)] ::std::io::Error),
 
-        errors {
-            InvalidVersion(version: u32) {
-                description("invalid regitry settings version"),
-                display("invalid regitry settings version: {}", version),
-            }
-        }
+    #[fail(display = "{}", _0)]
+    Utf8(#[fail(cause)] ::std::str::Utf8Error),
+
+    #[fail(display = "{}", _0)]
+    StringSerialization(::string_serialization::StringSerializationError),
+}
+
+impl From<::std::io::Error> for SerializationError {
+    fn from(error: ::std::io::Error) -> SerializationError {
+        SerializationError::Io(error)
     }
 }
 
-pub use self::errors::*;
+impl From<::std::str::Utf8Error> for SerializationError {
+    fn from(error: ::std::str::Utf8Error) -> SerializationError {
+        SerializationError::Utf8(error)
+    }
+}
+
+impl From<::string_serialization::StringSerializationError> for SerializationError {
+    fn from(error: ::string_serialization::StringSerializationError) -> SerializationError {
+        SerializationError::StringSerialization(error)
+    }
+}
+
 
 use super::types;
 use super::{IE6_VERSION, IE7_VERSION, WINHTTP_VERSION};
@@ -45,12 +57,12 @@ fn mk_bit_field(version: u32, config: &types::FullConfig) -> u32 {
     conf
 }
 
-pub fn serialize<W: Write>(config: &types::FullConfig, writer: W) -> Result<()> {
+pub fn serialize<W: Write>(config: &types::FullConfig, writer: W) -> Result<(), SerializationError> {
     let mut buffered = BufWriter::new(writer);
 
     let version = config.version;
     if version != WINHTTP_VERSION && version != IE6_VERSION && version != IE7_VERSION {
-        bail!(ErrorKind::InvalidVersion(version));
+        return Err(SerializationError::InvalidVersion(version));
     }
 
     buffered.write_u32::<LittleEndian>(version)?;
@@ -76,7 +88,7 @@ pub fn serialize<W: Write>(config: &types::FullConfig, writer: W) -> Result<()> 
     return Ok(());
 }
 
-fn deserialize_config<R: Read>(mut reader: R) -> Result<types::ProxyConfig> {
+fn deserialize_config<R: Read>(mut reader: R) -> Result<types::ProxyConfig, SerializationError> {
     let conf = reader.read_u32::<LittleEndian>()?;
 
     let automatically_detect_settings = (conf & 0x08) != 0x00;
@@ -97,14 +109,14 @@ fn deserialize_config<R: Read>(mut reader: R) -> Result<types::ProxyConfig> {
     });
 }
 
-pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::FullConfig> {
+pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::FullConfig, SerializationError> {
     let mut buffered = BufReader::new(reader);
 
     let version = buffered.read_u32::<LittleEndian>()?;
     if version < WINHTTP_VERSION || version > IE7_VERSION {
         // Versions seem forward compatible but it's hard to be sure that it will always be the case
         // The chance to encounter anything older than WinHTTP version seem small ;-)
-        bail!(ErrorKind::InvalidVersion(version));
+        return Err(SerializationError::InvalidVersion(version));
     }
 
     let counter = buffered.read_u32::<LittleEndian>()?;

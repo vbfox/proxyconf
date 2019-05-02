@@ -1,23 +1,26 @@
-mod errors {
-    error_chain! {
-        foreign_links {
-            Io(::std::io::Error);
-        }
+#[derive(Debug, Fail)]
+pub enum RegistryError {
+    #[fail(display = "Invalid registry value type")]
+    InvalidValueType,
 
-        links {
-            Serialization(super::serialization::Error, super::serialization::ErrorKind);
-        }
+    #[fail(display = "{}", _0)]
+    Io(#[fail(cause)] ::std::io::Error),
 
-        errors {
-            InvalidValueType {
-                description("invalid registry value type"),
-                display("invalid registry value type"),
-            }
-        }
+    #[fail(display = "{}", _0)]
+    Serialization(super::serialization::SerializationError),
+}
+
+impl From<::std::io::Error> for RegistryError {
+    fn from(error: ::std::io::Error) -> RegistryError {
+        RegistryError::Io(error)
     }
 }
 
-pub use self::errors::*;
+impl From<super::serialization::SerializationError> for RegistryError {
+    fn from(error: super::serialization::SerializationError) -> RegistryError {
+        RegistryError::Serialization(error)
+    }
+}
 
 use super::serialization;
 use super::types;
@@ -57,7 +60,7 @@ pub fn get_winhttp_location() -> Location {
     }
 }
 
-fn open_key(target: &Target, write: bool, wow6432: bool) -> Result<RegKey> {
+fn open_key(target: &Target, write: bool, wow6432: bool) -> Result<RegKey, RegistryError> {
     let root_key = match target {
         Target::System => RegKey::predef(HKEY_LOCAL_MACHINE),
         Target::CurrentUser => RegKey::predef(HKEY_CURRENT_USER),
@@ -68,7 +71,7 @@ fn open_key(target: &Target, write: bool, wow6432: bool) -> Result<RegKey> {
     return Ok(key);
 }
 
-fn write_raw(location: &Location, bytes: &Vec<u8>, wow6432: bool) -> Result<()> {
+fn write_raw(location: &Location, bytes: &Vec<u8>, wow6432: bool) -> Result<(), RegistryError> {
     let value = RegValue {
         vtype: REG_BINARY,
         bytes: bytes.to_owned(),
@@ -78,7 +81,7 @@ fn write_raw(location: &Location, bytes: &Vec<u8>, wow6432: bool) -> Result<()> 
     return Ok(());
 }
 
-pub fn write_full(location: &Location, config: &types::FullConfig) -> Result<()> {
+pub fn write_full(location: &Location, config: &types::FullConfig) -> Result<(), RegistryError> {
     let mut bytes = Vec::new();
     serialization::serialize(config, &mut bytes)?;
 
@@ -92,17 +95,17 @@ pub fn write_full(location: &Location, config: &types::FullConfig) -> Result<()>
     return Ok(());
 }
 
-fn read_raw(location: &Location) -> Result<Vec<u8>> {
+fn read_raw(location: &Location) -> Result<Vec<u8>, RegistryError> {
     let key = open_key(&location.target, false, false)?;
     let value = key.get_raw_value(&location.connection_name)?;
 
     match value.vtype {
         REG_BINARY => Ok(value.bytes),
-        _ => Err(ErrorKind::InvalidValueType.into()),
+        _ => Err(RegistryError::InvalidValueType),
     }
 }
 
-pub fn read_full(location: &Location) -> Result<types::FullConfig> {
+pub fn read_full(location: &Location) -> Result<types::FullConfig, RegistryError> {
     let bytes = read_raw(location)?;
     let conf = serialization::deserialize(&bytes[..])?;
     return Ok(conf);
@@ -116,11 +119,11 @@ pub fn get_next_counter(location: &Location) -> u32 {
     }
 }
 
-pub fn read(location: &Location) -> Result<types::ProxyConfig> {
+pub fn read(location: &Location) -> Result<types::ProxyConfig, RegistryError> {
     return Ok(read_full(location)?.config);
 }
 
-pub fn write(location: &Location, config: types::ProxyConfig) -> Result<()> {
+pub fn write(location: &Location, config: types::ProxyConfig) -> Result<(), RegistryError> {
     let full_before = read_full(location)?;
     let full_after = types::FullConfig {
         version: super::IE7_VERSION,
@@ -132,7 +135,7 @@ pub fn write(location: &Location, config: types::ProxyConfig) -> Result<()> {
     Ok(())
 }
 
-pub fn update<F>(location: &Location, updater: F) -> Result<()>
+pub fn update<F>(location: &Location, updater: F) -> Result<(), RegistryError>
 where
     F: FnOnce(types::ProxyConfig) -> types::ProxyConfig,
 {

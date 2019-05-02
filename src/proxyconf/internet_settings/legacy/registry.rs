@@ -1,12 +1,14 @@
-mod errors {
-    error_chain! {
-        foreign_links {
-            Io(::std::io::Error);
-        }
-    }
+#[derive(Debug, Fail)]
+pub enum RegistryError {
+    #[fail(display = "{}", _0)]
+    Io(#[fail(cause)] ::std::io::Error),
 }
 
-pub use self::errors::*;
+impl From<::std::io::Error> for RegistryError {
+    fn from(error: ::std::io::Error) -> RegistryError {
+        RegistryError::Io(error)
+    }
+}
 
 use super::types;
 use registry_helpers::*;
@@ -15,7 +17,7 @@ use winreg::RegKey;
 
 const KEY_PATH: &'static str = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings";
 
-fn open_key(write: bool) -> Result<RegKey> {
+fn open_key(write: bool) -> Result<RegKey, RegistryError> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let access = if write { KEY_ALL_ACCESS } else { KEY_READ };
     let key = hkcu.open_subkey_with_flags(KEY_PATH, access)?;
@@ -29,7 +31,7 @@ fn bool_to_u32(b: bool) -> u32 {
     };
 }
 
-pub fn write(config: &types::ProxyConfig) -> Result<()> {
+pub fn write(config: &types::ProxyConfig) -> Result<(), RegistryError> {
     let key = open_key(true)?;
     key.set_value("ProxyEnable", &bool_to_u32(config.use_manual_proxy))?;
 
@@ -61,7 +63,7 @@ pub fn write(config: &types::ProxyConfig) -> Result<()> {
     return Ok(());
 }
 
-pub fn read() -> Result<types::ProxyConfig> {
+pub fn read() -> Result<types::ProxyConfig, RegistryError> {
     let key = open_key(false)?;
 
     let proxy_enable = get_optional_u32(&key, "ProxyEnable")?;
