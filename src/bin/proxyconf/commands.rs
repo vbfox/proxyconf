@@ -39,12 +39,21 @@ pub mod envvars {
     use proxyconf::envvars_settings::{ProxyConfig, get_user, get_machine};
 
     fn show_config(config: &ProxyConfig) {
-        if config.http_proxy_address.len() == 0 && config.https_proxy_address.len() == 0 && config.bypass_list.len() == 0 {
+        if config.http_proxy_address.is_none() && config.https_proxy_address.is_none() && config.bypass_list.is_none() {
             println!("    Direct access (no proxy server).");
         } else {
-            println!("    Http proxy  : {}", config.http_proxy_address);
-            println!("    Https proxy : {}", config.https_proxy_address);
-            println!("    Bypass list : {}", config.bypass_list);
+            match &config.http_proxy_address {
+                Some(value) => println!("    Http proxy  : {}", value),
+                None => {},
+            }
+            match &config.https_proxy_address {
+                Some(value) => println!("    Https proxy : {}", value),
+                None => {},
+            }
+            match &config.bypass_list {
+                Some(value) => println!("    Bypass list : {}", value),
+                None => {},
+            }
         }
     }
 
