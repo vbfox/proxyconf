@@ -1,5 +1,7 @@
 //! Handle strings serialized with an u32 for the size followed by ASCII characters
 
+use failure::Fail;
+
 #[derive(Debug, Fail)]
 pub enum StringSerializationError {
     #[fail(display = "usize is too big to become an u32: {}", _0)]

@@ -1,3 +1,5 @@
+use failure::Fail;
+
 #[derive(Debug, Fail)]
 pub enum RegistryError {
     #[fail(display = "Invalid registry value type")]

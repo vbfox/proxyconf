@@ -1,3 +1,5 @@
+use failure::Fail;
+
 #[derive(Debug, Fail)]
 pub enum SerializationError {
     #[fail(display = "Invalid registry settings version: {}", _0)]
@@ -33,9 +35,9 @@ impl From<crate::string_serialization::StringSerializationError> for Serializati
 
 use super::types;
 use super::{IE6_VERSION, IE7_VERSION, WINHTTP_VERSION};
+use crate::string_serialization;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std::io::{BufReader, BufWriter, Read, Write};
-use crate::string_serialization;
 
 fn mk_bit_field(version: u32, config: &types::FullConfig) -> u32 {
     let mut conf = 0x01;
