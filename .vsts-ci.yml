@@ -15,13 +15,13 @@ phases:
           remove-item rustup-init.exe
         displayName: Install Rust
 
-      - powershell: |
-          & "$env:USERPROFILE/.cargo/bin/cargo.exe" +nightly-x86_64-pc-windows-msvc install rustfmt-nightly --force
-        displayName: Install rustfmt
-
-      - powershell: |
-          & "$env:USERPROFILE/.cargo/bin/cargo.exe" +nightly-x86_64-pc-windows-msvc fmt -- --emit checkstyle
-        displayName: Validate Formatting
+#      - powershell: |
+#          & "$env:USERPROFILE/.cargo/bin/cargo.exe" +nightly-x86_64-pc-windows-msvc install rustfmt-nightly --force
+#        displayName: Install rustfmt
+#
+#      - powershell: |
+#          & "$env:USERPROFILE/.cargo/bin/cargo.exe" +nightly-x86_64-pc-windows-msvc fmt -- --emit checkstyle
+#        displayName: Validate Formatting
 
       - powershell: |
           & "$env:USERPROFILE/.cargo/bin/cargo.exe" +stable-x86_64-pc-windows-msvc check
