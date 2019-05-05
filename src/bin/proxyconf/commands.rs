@@ -1,11 +1,16 @@
 pub mod winhttp {
-    use proxyconf::internet_settings::modern::{ProxyConfig, FullConfig, empty_config, registry, WINHTTP_VERSION};
+    use proxyconf::internet_settings::modern::{
+        empty_config, registry, FullConfig, ProxyConfig, WINHTTP_VERSION,
+    };
     use write_config;
 
     pub fn show() {
         let location = registry::get_winhttp_location();
-        let conf = registry::read(&location).unwrap();
-        write_config::ie_modern(&conf);
+        let conf = registry::read(&location);
+        match conf {
+            Ok(conf) => write_config::ie_modern(&conf),
+            Err(e) => println!("    Error: {}", e),
+        }
     }
 
     fn set_config(config: &ProxyConfig) {
@@ -36,39 +41,50 @@ pub mod winhttp {
 }
 
 pub mod envvars {
-    use proxyconf::envvars_settings::{ProxyConfig, get_user, get_machine};
+    use proxyconf::envvars_settings::{get_machine, get_user, ProxyConfig};
+    use std::io;
 
     fn show_config(config: &ProxyConfig) {
-        if config.http_proxy_address.is_none() && config.https_proxy_address.is_none() && config.bypass_list.is_none() {
+        if config.http_proxy_address.is_none()
+            && config.https_proxy_address.is_none()
+            && config.bypass_list.is_none()
+        {
             println!("    Direct access (no proxy server).");
         } else {
             match &config.http_proxy_address {
                 Some(value) => println!("    Http proxy  : {}", value),
-                None => {},
+                None => {}
             }
             match &config.https_proxy_address {
                 Some(value) => println!("    Https proxy : {}", value),
-                None => {},
+                None => {}
             }
             match &config.bypass_list {
                 Some(value) => println!("    Bypass list : {}", value),
-                None => {},
+                None => {}
             }
         }
     }
 
+    fn try_show_config(config: &io::Result<ProxyConfig>) {
+        match config {
+            Ok(config) => show_config(config),
+            Err(e) => println!("    Error: {}", e),
+        }
+    }
+
     pub fn show_user() {
-        show_config(&get_user().unwrap())
+        try_show_config(&get_user())
     }
 
     pub fn show_machine() {
-        show_config(&get_machine().unwrap())
+        try_show_config(&get_machine())
     }
 }
 
 pub mod main {
-    use super::winhttp;
     use super::envvars;
+    use super::winhttp;
     use proxyconf::internet_settings::{legacy, modern};
     use write_config;
 
@@ -121,8 +137,11 @@ pub mod main {
 
     fn modern_show() {
         let location = modern::registry::get_current_user_location();
-        let conf = modern::registry::read(&location).unwrap();
-        write_config::ie_modern(&conf);
+        let conf = modern::registry::read(&location);
+        match &conf {
+            Ok(conf) => write_config::ie_modern(&conf),
+            Err(e) => println!("    Error: {}", e),
+        }
     }
 
     pub fn show() {
