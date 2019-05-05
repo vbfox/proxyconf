@@ -1,6 +1,6 @@
 [package]
 name = "proxyconf"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Julien Roncaglia <julien@roncaglia.fr>"]
 license = "MIT"
 keywords = ["windows", "docker", "proxy", "config", "cli"]
@@ -12,6 +12,9 @@ Windows proxy configuration from the command line.
 """
 readme = "README.md"
 edition = "2018"
+
+[package.metadata.docs.rs]
+default-target = "x86_64-pc-windows-msvc"
 
 [dependencies]
 winreg = "0.6.0"
