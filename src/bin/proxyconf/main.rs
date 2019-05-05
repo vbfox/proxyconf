@@ -15,16 +15,16 @@ fn exit_with_command_result(result: CommandResult) {
     std::process::exit(code);
 }
 
-fn on_unexpected() {
+fn on_unexpected_command() {
     args::get().print_help().unwrap();
-    exit_with_command_result(CommandResult::Error)
+    exit_with_command_result(CommandResult::UnexpectedCommand)
 }
 
 fn main() {
     let matches = args::get().get_matches();
 
     if let Some(_) = matches.subcommand_matches("show") {
-        commands::main::show();
+        exit_with_command_result(commands::main::show());
     } else if let Some(set_matches) = matches.subcommand_matches("set") {
         if let Some(_) = set_matches.subcommand_matches("no-proxy") {
             commands::main::set_no_proxy();
@@ -38,7 +38,7 @@ fn main() {
             let bypass_list = proxy_matches.value_of("bypass").unwrap_or("<local>");
             commands::main::set_server(server, bypass_list);
         } else {
-            on_unexpected();
+            on_unexpected_command();
         }
     } else if let Some(winhttp_matches) = matches.subcommand_matches("winhttp") {
         if let Some(_) = winhttp_matches.subcommand_matches("no-proxy") {
@@ -48,7 +48,7 @@ fn main() {
             let bypass_list = proxy_matches.value_of("bypass").unwrap_or("<local>");
             exit_with_command_result(commands::winhttp::set_server(server, bypass_list));
         } else {
-            on_unexpected();
+            on_unexpected_command();
         }
     } else {
         args::get().print_help().unwrap();
