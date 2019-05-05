@@ -3,13 +3,21 @@ extern crate proxyconf;
 #[macro_use]
 extern crate clap;
 
+use command_result::CommandResult;
+
 mod args;
+mod command_result;
 mod commands;
 mod write_config;
 
+fn exit_with_command_result(result: CommandResult) {
+    let code = result as i32;
+    std::process::exit(code);
+}
+
 fn on_unexpected() {
     args::get().print_help().unwrap();
-    std::process::exit(1);
+    exit_with_command_result(CommandResult::Error)
 }
 
 fn main() {
@@ -34,11 +42,11 @@ fn main() {
         }
     } else if let Some(winhttp_matches) = matches.subcommand_matches("winhttp") {
         if let Some(_) = winhttp_matches.subcommand_matches("no-proxy") {
-            commands::winhttp::set_no_proxy();
+            exit_with_command_result(commands::winhttp::set_no_proxy());
         } else if let Some(proxy_matches) = winhttp_matches.subcommand_matches("proxy") {
             let server = proxy_matches.value_of("server").unwrap();
             let bypass_list = proxy_matches.value_of("bypass").unwrap_or("<local>");
-            commands::winhttp::set_server(server, bypass_list);
+            exit_with_command_result(commands::winhttp::set_server(server, bypass_list));
         } else {
             on_unexpected();
         }

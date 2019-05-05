@@ -1,4 +1,6 @@
 pub mod winhttp {
+    use command_result::CommandResult;
+    use proxyconf::internet_settings::modern::registry::RegistryError;
     use proxyconf::internet_settings::modern::{
         empty_config, registry, FullConfig, ProxyConfig, WINHTTP_VERSION,
     };
@@ -13,30 +15,52 @@ pub mod winhttp {
         }
     }
 
-    fn set_config(config: &ProxyConfig) {
+    fn is_access_denied(err: &RegistryError) -> bool {
+        match err {
+            RegistryError::Io(io_err) => {
+                return io_err.kind() == std::io::ErrorKind::PermissionDenied
+            }
+            _ => false,
+        }
+    }
+
+    fn set_config(config: &ProxyConfig) -> CommandResult {
         let location = registry::get_winhttp_location();
         let full_config = FullConfig {
             version: WINHTTP_VERSION,
             counter: 0,
             config: config.clone(),
         };
-        registry::write_full(&location, &full_config).unwrap();
 
-        println!("Configuration changed to: ");
-        write_config::ie_modern(&config);
+        match registry::write_full(&location, &full_config) {
+            Ok(()) => {
+                println!("Configuration changed to: ");
+                write_config::ie_modern(&config);
+                return CommandResult::Ok;
+            }
+            Err(e) => {
+                if is_access_denied(&e) {
+                    println!("Access denied, you need to run this operation as administrator");
+                    return CommandResult::AccessDenied;
+                } else {
+                    println!("Error: {}", e);
+                    return CommandResult::Error;
+                }
+            }
+        }
     }
 
-    pub fn set_server(server: &str, bypass_list: &str) {
+    pub fn set_server(server: &str, bypass_list: &str) -> CommandResult {
         set_config(&ProxyConfig {
             use_manual_proxy: true,
             manual_proxy_address: server.into(),
             manual_proxy_bypass_list: bypass_list.into(),
             ..empty_config()
-        });
+        })
     }
 
-    pub fn set_no_proxy() {
-        set_config(&empty_config());
+    pub fn set_no_proxy() -> CommandResult {
+        set_config(&empty_config())
     }
 }
 
@@ -85,6 +109,7 @@ pub mod envvars {
 pub mod main {
     use super::envvars;
     use super::winhttp;
+    use command_result::CommandResult;
     use proxyconf::internet_settings::{legacy, modern};
     use write_config;
 
@@ -144,7 +169,7 @@ pub mod main {
         }
     }
 
-    pub fn show() {
+    pub fn show() -> CommandResult {
         println!("Internet explorer: ");
         modern_show();
 
@@ -159,5 +184,7 @@ pub mod main {
         println!();
         println!("Environment variables (System wide): ");
         envvars::show_machine();
+
+        return CommandResult::Ok;
     }
 }
