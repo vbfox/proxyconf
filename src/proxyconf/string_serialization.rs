@@ -27,9 +27,11 @@ impl From<::std::str::Utf8Error> for StringSerializationError {
 }
 
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
-use std;
-use std::io;
-use std::io::{Read, Write};
+
+use std::{
+    io,
+    io::{ErrorKind, Read, Write},
+};
 
 fn usize_to_u32(a: usize) -> Result<u32, StringSerializationError> {
     if a > std::u32::MAX as usize {
@@ -59,7 +61,7 @@ pub fn read<R: Read>(reader: &mut R) -> Result<String, StringSerializationError>
             return Ok(String::from(s));
         }
         Err(e) => {
-            if e.kind() == io::ErrorKind::UnexpectedEof {
+            if e.kind() == ErrorKind::UnexpectedEof {
                 return Ok(String::from(""));
             } else {
                 return Err(e.into());
