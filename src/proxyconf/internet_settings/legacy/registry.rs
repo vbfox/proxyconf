@@ -11,7 +11,7 @@ impl From<::std::io::Error> for RegistryError {
 }
 
 use super::types;
-use registry_helpers::*;
+use crate::registry_helpers::*;
 use winreg::enums::*;
 use winreg::RegKey;
 

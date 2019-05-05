@@ -3,7 +3,7 @@ extern crate proxyconf;
 #[macro_use]
 extern crate clap;
 
-use command_result::CommandResult;
+use crate::command_result::CommandResult;
 
 mod args;
 mod command_result;

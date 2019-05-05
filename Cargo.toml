@@ -11,6 +11,7 @@ description = """
 Windows proxy configuration from the command line.
 """
 readme = "README.md"
+edition = "2018"
 
 [dependencies]
 winreg = "0.6.0"

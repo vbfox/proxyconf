@@ -10,7 +10,7 @@ pub enum SerializationError {
     Utf8(#[fail(cause)] ::std::str::Utf8Error),
 
     #[fail(display = "{}", _0)]
-    StringSerialization(::string_serialization::StringSerializationError),
+    StringSerialization(crate::string_serialization::StringSerializationError),
 }
 
 impl From<::std::io::Error> for SerializationError {
@@ -25,8 +25,8 @@ impl From<::std::str::Utf8Error> for SerializationError {
     }
 }
 
-impl From<::string_serialization::StringSerializationError> for SerializationError {
-    fn from(error: ::string_serialization::StringSerializationError) -> SerializationError {
+impl From<crate::string_serialization::StringSerializationError> for SerializationError {
+    fn from(error: crate::string_serialization::StringSerializationError) -> SerializationError {
         SerializationError::StringSerialization(error)
     }
 }
@@ -35,7 +35,7 @@ use super::types;
 use super::{IE6_VERSION, IE7_VERSION, WINHTTP_VERSION};
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std::io::{BufReader, BufWriter, Read, Write};
-use string_serialization;
+use crate::string_serialization;
 
 fn mk_bit_field(version: u32, config: &types::FullConfig) -> u32 {
     let mut conf = 0x01;
@@ -134,7 +134,7 @@ pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::FullConfig, Serializ
 #[cfg(test)]
 mod tests {
     use super::*;
-    use hex::FromHex;
+    use crate::hex::FromHex;
 
     #[test]
     fn winhttp_deserialize_no_proxy() {

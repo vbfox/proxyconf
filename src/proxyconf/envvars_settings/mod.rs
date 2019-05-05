@@ -1,5 +1,5 @@
 use std::io;
-use ::envvars;
+use crate::envvars;
 
 #[derive(Debug, Clone)]
 pub struct ProxyConfig {
