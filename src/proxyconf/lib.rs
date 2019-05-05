@@ -2,8 +2,8 @@
 
 #[macro_use]
 extern crate failure;
-extern crate byteorder;
-extern crate winreg;
+
+
 
 pub mod internet_settings;
 pub mod envvars_settings;

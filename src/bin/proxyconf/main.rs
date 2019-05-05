@@ -1,4 +1,4 @@
-extern crate proxyconf;
+
 
 #[macro_use]
 extern crate clap;

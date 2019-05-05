@@ -74,7 +74,7 @@ pub enum FromHexError {
 }
 
 impl fmt::Debug for FromHexError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             InvalidHexCharacter(ch, idx) => {
                 write!(f, "Invalid character '{}' at position {}", ch, idx)
@@ -94,7 +94,7 @@ impl error::Error for FromHexError {
 }
 
 impl fmt::Display for FromHexError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt::Debug::fmt(&self, f)
     }
 }
@@ -133,9 +133,9 @@ impl FromHex for str {
             buf <<= 4;
 
             match byte {
-                b'A'...b'F' => buf |= byte - b'A' + 10,
-                b'a'...b'f' => buf |= byte - b'a' + 10,
-                b'0'...b'9' => buf |= byte - b'0',
+                b'A'..=b'F' => buf |= byte - b'A' + 10,
+                b'a'..=b'f' => buf |= byte - b'a' + 10,
+                b'0'..=b'9' => buf |= byte - b'0',
                 b' ' | b'\r' | b'\n' | b'\t' => {
                     buf >>= 4;
                     continue;
