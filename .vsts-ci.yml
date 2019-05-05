@@ -17,7 +17,7 @@ phases:
 
       - powershell: |
           & "$env:USERPROFILE/.cargo/bin/cargo.exe" +nightly-x86_64-pc-windows-msvc install rustfmt-nightly --force
-          & "$env:USERPROFILE/.cargo/bin/cargo.exe" +nightly-x86_64-pc-windows-msvc fmt -- --write-mode diff
+          & "$env:USERPROFILE/.cargo/bin/cargo.exe" +nightly-x86_64-pc-windows-msvc fmt -- --emit checkstyle
         displayName: Validate Formatting
 
       - powershell: |
