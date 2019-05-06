@@ -1,8 +1,17 @@
 # ProxyConf
 
-[![crates.io](https://img.shields.io/badge/crates.io-v0.2.1-orange.svg?longCache=true)](https://crates.io/crates/proxyconf)
-[![Docs](https://docs.rs/proxyconf/badge.svg?version=0.2.1)](https://docs.rs/proxyconf)
-[![Azure Pipelines Status](https://vbfox.visualstudio.com/ProxyConf/_apis/build/status/ProxyConf%20YAML?branchName=master)](https://vbfox.visualstudio.com/ProxyConf/_build/latest?definitionId=2&branchName=master)
+[![License][license-badge]](LICENSE)
+[![crates.io][crate-badge]][crate]
+[![Docs][docs-badge]][docs]
+[![Azure Pipelines Status][pipelines-badge]][pipelines]
+
+[license-badge]: https://img.shields.io/badge/License-MIT-green.svg?longCache=true
+[crate-badge]: https://img.shields.io/badge/crates.io-v0.2.1-orange.svg?longCache=true 
+[crate]: https://crates.io/crates/proxyconf
+[docs-badge]: https://docs.rs/proxyconf/badge.svg?version=0.2.1
+[docs]: https://docs.rs/proxyconf
+[pipelines-badge]: https://vbfox.visualstudio.com/ProxyConf/_apis/build/status/ProxyConf%20YAML?branchName=master
+[pipelines]: https://vbfox.visualstudio.com/ProxyConf/_build/latest?definitionId=2&branchName=master
 
 A small command line tool to set proxy configuration on Windows.
 
