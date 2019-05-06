@@ -136,13 +136,10 @@ pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::FullConfig, Serializ
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::hex::FromHex;
 
     #[test]
     fn winhttp_deserialize_no_proxy() {
-        let data = "2800000000000000010000000000000000000000"
-            .from_hex()
-            .unwrap();
+        let data = hex::decode("2800000000000000010000000000000000000000").unwrap();
 
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.version, WINHTTP_VERSION);
@@ -158,9 +155,7 @@ mod tests {
 
     #[test]
     fn winhttp_deserialize_some_proxy() {
-        let data = "28000000000000000300000004000000613A3432040000002A2E3432"
-            .from_hex()
-            .unwrap();
+        let data = hex::decode("28000000000000000300000004000000613A3432040000002A2E3432").unwrap();
 
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.version, WINHTTP_VERSION);
@@ -176,7 +171,7 @@ mod tests {
 
     #[test]
     fn ie6_deserialize_no_proxy() {
-        let data = "3C0000003A0000000900000000000000000000000000000000000000000000000000000000000000000000000000000000000000".from_hex().unwrap();
+        let data = hex::decode("3C0000003A0000000900000000000000000000000000000000000000000000000000000000000000000000000000000000000000").unwrap();
 
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.version, IE6_VERSION);
@@ -195,7 +190,7 @@ mod tests {
 
     #[test]
     fn ie8_deserialize_no_proxy() {
-        let data = "460000003A000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000".from_hex().unwrap();
+        let data = hex::decode("460000003A000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000").unwrap();
 
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.version, IE7_VERSION);
@@ -214,7 +209,7 @@ mod tests {
 
     #[test]
     fn ie8_deserialize_some_proxy() {
-        let data ="46000000400000000F0000000D000000676F6F676C652E636F6D3A34320B0000004C6F6C3B3C6C6F63616C3E11000000687474703A2F2F676F6F676C652E66722F0000000000000000000000000000000000000000000000000000000000000000".from_hex().unwrap();
+        let data = hex::decode("46000000400000000F0000000D000000676F6F676C652E636F6D3A34320B0000004C6F6C3B3C6C6F63616C3E11000000687474703A2F2F676F6F676C652E66722F0000000000000000000000000000000000000000000000000000000000000000").unwrap();
 
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.version, IE7_VERSION);
@@ -242,7 +237,7 @@ mod tests {
 
     #[test]
     fn ie8_deserialize_some_proxy_not_used() {
-        let data ="4600000044000000010000000D000000676F6F676C652E636F6D3A34320B0000004C6F6C3B3C6C6F63616C3E11000000687474703A2F2F676F6F676C652E66722F0000000000000000000000000000000000000000000000000000000000000000".from_hex().unwrap();
+        let data = hex::decode("4600000044000000010000000D000000676F6F676C652E636F6D3A34320B0000004C6F6C3B3C6C6F63616C3E11000000687474703A2F2F676F6F676C652E66722F0000000000000000000000000000000000000000000000000000000000000000").unwrap();
 
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.version, IE7_VERSION);
