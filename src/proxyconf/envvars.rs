@@ -5,8 +5,7 @@ use std::io;
 use winreg::enums::*;
 use winreg::RegKey;
 
-const MACHINE_PATH: &str =
-    "System\\CurrentControlSet\\Control\\Session Manager\\Environment";
+const MACHINE_PATH: &str = "System\\CurrentControlSet\\Control\\Session Manager\\Environment";
 
 const USER_PATH: &str = "Environment";
 

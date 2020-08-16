@@ -17,9 +17,7 @@ pub mod winhttp {
 
     fn is_access_denied(err: &RegistryError) -> bool {
         match err {
-            RegistryError::Io(io_err) => {
-                io_err.kind() == std::io::ErrorKind::PermissionDenied
-            }
+            RegistryError::Io(io_err) => io_err.kind() == std::io::ErrorKind::PermissionDenied,
             _ => false,
         }
     }
