@@ -1,29 +1,17 @@
 //! Handle strings serialized with an u32 for the size followed by ASCII characters
 
-use failure::Fail;
+use thiserror::Error;
 
-#[derive(Debug, Fail)]
+#[derive(Error, Debug)]
 pub enum StringSerializationError {
-    #[fail(display = "usize is too big to become an u32: {}", _0)]
+    #[error("usize is too big to become an u32: {0}")]
     InvalidSize(usize),
 
-    #[fail(display = "{}", _0)]
-    Io(#[fail(cause)] ::std::io::Error),
+    #[error(transparent)]
+    Io(#[from] ::std::io::Error),
 
-    #[fail(display = "{}", _0)]
-    Utf8(#[fail(cause)] ::std::str::Utf8Error),
-}
-
-impl From<::std::io::Error> for StringSerializationError {
-    fn from(error: ::std::io::Error) -> StringSerializationError {
-        StringSerializationError::Io(error)
-    }
-}
-
-impl From<::std::str::Utf8Error> for StringSerializationError {
-    fn from(error: ::std::str::Utf8Error) -> StringSerializationError {
-        StringSerializationError::Utf8(error)
-    }
+    #[error(transparent)]
+    Utf8(#[from] ::std::str::Utf8Error),
 }
 
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};

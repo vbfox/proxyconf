@@ -1,36 +1,18 @@
-use failure::Fail;
+use thiserror::Error;
 
-#[derive(Debug, Fail)]
+#[derive(Error, Debug)]
 pub enum SerializationError {
-    #[fail(display = "Invalid registry settings version: {}", _0)]
+    #[error("Invalid registry settings version: {0}")]
     InvalidVersion(u32),
 
-    #[fail(display = "{}", _0)]
-    Io(#[fail(cause)] ::std::io::Error),
+    #[error(transparent)]
+    Io(#[from] ::std::io::Error),
 
-    #[fail(display = "{}", _0)]
-    Utf8(#[fail(cause)] ::std::str::Utf8Error),
+    #[error(transparent)]
+    Utf8(#[from] ::std::str::Utf8Error),
 
-    #[fail(display = "{}", _0)]
-    StringSerialization(crate::string_serialization::StringSerializationError),
-}
-
-impl From<::std::io::Error> for SerializationError {
-    fn from(error: ::std::io::Error) -> SerializationError {
-        SerializationError::Io(error)
-    }
-}
-
-impl From<::std::str::Utf8Error> for SerializationError {
-    fn from(error: ::std::str::Utf8Error) -> SerializationError {
-        SerializationError::Utf8(error)
-    }
-}
-
-impl From<crate::string_serialization::StringSerializationError> for SerializationError {
-    fn from(error: crate::string_serialization::StringSerializationError) -> SerializationError {
-        SerializationError::StringSerialization(error)
-    }
+    #[error(transparent)]
+    StringSerialization(#[from] crate::string_serialization::StringSerializationError),
 }
 
 use super::types;

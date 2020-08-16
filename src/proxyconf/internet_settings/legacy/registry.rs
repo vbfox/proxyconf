@@ -1,15 +1,9 @@
-use failure::Fail;
+use thiserror::Error;
 
-#[derive(Debug, Fail)]
+#[derive(Error, Debug)]
 pub enum RegistryError {
-    #[fail(display = "{}", _0)]
-    Io(#[fail(cause)] ::std::io::Error),
-}
-
-impl From<::std::io::Error> for RegistryError {
-    fn from(error: ::std::io::Error) -> RegistryError {
-        RegistryError::Io(error)
-    }
+    #[error(transparent)]
+    Io(#[from] ::std::io::Error),
 }
 
 use super::types;

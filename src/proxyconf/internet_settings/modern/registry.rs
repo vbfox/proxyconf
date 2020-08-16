@@ -1,27 +1,15 @@
-use failure::Fail;
+use thiserror::Error;
 
-#[derive(Debug, Fail)]
+#[derive(Error, Debug)]
 pub enum RegistryError {
-    #[fail(display = "Invalid registry value type")]
+    #[error("Invalid registry value type")]
     InvalidValueType,
 
-    #[fail(display = "{}", _0)]
-    Io(#[fail(cause)] ::std::io::Error),
+    #[error(transparent)]
+    Io(#[from] ::std::io::Error),
 
-    #[fail(display = "{}", _0)]
-    Serialization(super::serialization::SerializationError),
-}
-
-impl From<::std::io::Error> for RegistryError {
-    fn from(error: ::std::io::Error) -> RegistryError {
-        RegistryError::Io(error)
-    }
-}
-
-impl From<super::serialization::SerializationError> for RegistryError {
-    fn from(error: super::serialization::SerializationError) -> RegistryError {
-        RegistryError::Serialization(error)
-    }
+    #[error(transparent)]
+    Serialization(#[from] super::serialization::SerializationError),
 }
 
 use super::serialization;
