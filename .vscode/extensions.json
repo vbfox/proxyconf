@@ -1,6 +1,6 @@
 {
     "recommendations": [
-        "rust-lang.rust",
+        "matklad.rust-analyzer",
         "editorconfig.editorconfig"
     ]
 }

@@ -3,5 +3,6 @@
         ".idea/": true,
         "target/": true,
         "*.iml": true
-    }
+    },
+    "rust-analyzer.cargo-watch.command": "clippy"
 }
