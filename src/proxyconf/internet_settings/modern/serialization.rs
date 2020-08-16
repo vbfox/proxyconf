@@ -25,15 +25,15 @@ fn mk_bit_field(version: u32, config: &types::FullConfig) -> u32 {
     let mut conf = 0x01;
 
     if config.config.use_manual_proxy {
-        conf = conf | 0x02
+        conf |= 0x02
     }
 
     if version >= IE6_VERSION {
         if config.config.use_setup_script {
-            conf = conf | 0x04
+            conf |= 0x04
         }
         if config.config.automatically_detect_settings {
-            conf = conf | 0x08
+            conf |= 0x08
         }
     }
 
@@ -71,7 +71,7 @@ pub fn serialize<W: Write>(
     }
     buffered.flush()?;
 
-    return Ok(());
+    Ok(())
 }
 
 fn deserialize_config<R: Read>(mut reader: R) -> Result<types::ProxyConfig, SerializationError> {
@@ -85,14 +85,14 @@ fn deserialize_config<R: Read>(mut reader: R) -> Result<types::ProxyConfig, Seri
     let manual_proxy_bypass_list = string_serialization::read(&mut reader)?;
     let setup_script_address = string_serialization::read(&mut reader)?;
 
-    return Ok(types::ProxyConfig {
+    Ok(types::ProxyConfig {
         automatically_detect_settings,
         use_setup_script,
         setup_script_address,
         use_manual_proxy,
         manual_proxy_address,
         manual_proxy_bypass_list,
-    });
+    })
 }
 
 pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::FullConfig, SerializationError> {
@@ -108,11 +108,11 @@ pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::FullConfig, Serializ
     let counter = buffered.read_u32::<LittleEndian>()?;
     let config = deserialize_config(buffered)?;
 
-    return Ok(types::FullConfig {
+    Ok(types::FullConfig {
         version,
         counter,
         config,
-    });
+    })
 }
 
 #[cfg(test)]

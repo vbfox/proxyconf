@@ -11,20 +11,21 @@ use crate::registry_helpers::*;
 use winreg::enums::*;
 use winreg::RegKey;
 
-const KEY_PATH: &'static str = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings";
+const KEY_PATH: &str = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings";
 
 fn open_key(write: bool) -> Result<RegKey, RegistryError> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let access = if write { KEY_ALL_ACCESS } else { KEY_READ };
     let key = hkcu.open_subkey_with_flags(KEY_PATH, access)?;
-    return Ok(key);
+
+    Ok(key)
 }
 
 fn bool_to_u32(b: bool) -> u32 {
-    return match b {
+    match b {
         false => 0u32,
         true => 1u32,
-    };
+    }
 }
 
 pub fn write(config: &types::ProxyConfig) -> Result<(), RegistryError> {
@@ -56,7 +57,7 @@ pub fn write(config: &types::ProxyConfig) -> Result<(), RegistryError> {
     // IE wasn't delivered in Windows as now it's always 1.
     key.set_value("MigrateProxy", &1u32)?;
 
-    return Ok(());
+    Ok(())
 }
 
 pub fn read() -> Result<types::ProxyConfig, RegistryError> {
@@ -67,13 +68,13 @@ pub fn read() -> Result<types::ProxyConfig, RegistryError> {
     let proxy_override = get_optional_string(&key, "ProxyOverride")?;
     let setup_script_address = get_optional_string(&key, "AutoConfigURL")?;
 
-    return Ok(types::ProxyConfig {
+    Ok(types::ProxyConfig {
         setup_script_address,
         use_manual_proxy: match proxy_enable.unwrap_or(0) {
             0 => false,
             _ => true,
         },
-        manual_proxy_address: proxy_server.unwrap_or(String::from("")),
-        manual_proxy_bypass_list: proxy_override.unwrap_or(String::from("")),
-    });
+        manual_proxy_address: proxy_server.unwrap_or_else(|| String::from("")),
+        manual_proxy_bypass_list: proxy_override.unwrap_or_else(|| String::from("")),
+    })
 }

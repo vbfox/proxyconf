@@ -9,23 +9,23 @@ trait CommonCommands<'a, 'b> {
 
 impl<'a, 'b> CommonCommands<'a, 'b> for App<'a, 'b> {
     fn no_proxy(self) -> App<'a, 'b> {
-        return self.subcommand(
+        self.subcommand(
             SubCommand::with_name("no-proxy")
                 .about("Disable proxy")
                 .aliases(&["disabled"]),
-        );
+        )
     }
 
     fn auto_detect(self) -> App<'a, 'b> {
-        return self.subcommand(
+        self.subcommand(
             SubCommand::with_name("auto-detect")
                 .about("Automatically detect settings")
                 .aliases(&["auto"]),
-        );
+        )
     }
 
     fn setup_script(self) -> App<'a, 'b> {
-        return self.subcommand(
+        self.subcommand(
             SubCommand::with_name("setup-script")
                 .about("Use a Proxy auto-config setup script (PAC)")
                 .arg(
@@ -36,11 +36,11 @@ impl<'a, 'b> CommonCommands<'a, 'b> for App<'a, 'b> {
                         .takes_value(true)
                         .required(true),
                 ),
-        );
+        )
     }
 
     fn manual_proxy(self) -> App<'a, 'b> {
-        return self.subcommand(
+        self.subcommand(
             SubCommand::with_name("proxy")
                 .about("Use a manual proxy")
                 .arg(
@@ -61,12 +61,12 @@ impl<'a, 'b> CommonCommands<'a, 'b> for App<'a, 'b> {
                         .takes_value(true)
                         .required(false),
                 ),
-        );
+        )
     }
 }
 
 pub fn get<'a, 'b>() -> App<'a, 'b> {
-    return App::new("ProxyConf")
+    App::new("ProxyConf")
         .version(crate_version!())
         .author("Julien Roncaglia <julien@roncaglia.fr>")
         .about("Windows proxy configuration from the command line")
@@ -84,5 +84,5 @@ pub fn get<'a, 'b>() -> App<'a, 'b> {
                 .about("Set the system-wide WinHTTP configuration")
                 .no_proxy()
                 .manual_proxy(),
-        );
+        )
 }

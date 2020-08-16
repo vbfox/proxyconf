@@ -23,9 +23,9 @@ use std::{
 
 fn usize_to_u32(a: usize) -> Result<u32, StringSerializationError> {
     if a > std::u32::MAX as usize {
-        return Err(StringSerializationError::InvalidSize(a).into());
+        Err(StringSerializationError::InvalidSize(a))
     } else {
-        return Ok(a as u32);
+        Ok(a as u32)
     }
 }
 
@@ -33,7 +33,7 @@ fn usize_to_u32(a: usize) -> Result<u32, StringSerializationError> {
 pub fn write<W: Write>(writer: &mut W, s: &str) -> Result<(), StringSerializationError> {
     writer.write_u32::<LittleEndian>(usize_to_u32(s.len())?)?;
     writer.write_all(s.as_bytes())?;
-    return Ok(());
+    Ok(())
 }
 
 /// Read a string prepended by an u32 containing it's size, also returning empty on EOF for the len field instead of an
@@ -46,13 +46,13 @@ pub fn read<R: Read>(reader: &mut R) -> Result<String, StringSerializationError>
             reader.read_exact(&mut bytes)?;
 
             let s = std::str::from_utf8(&bytes)?;
-            return Ok(String::from(s));
+            Ok(String::from(s))
         }
         Err(e) => {
             if e.kind() == ErrorKind::UnexpectedEof {
-                return Ok(String::from(""));
+                Ok(String::from(""))
             } else {
-                return Err(e.into());
+                Err(e.into())
             }
         }
     }
