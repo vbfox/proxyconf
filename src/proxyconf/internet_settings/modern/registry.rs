@@ -58,16 +58,18 @@ fn open_key(target: &Target, write: bool, wow6432: bool) -> Result<RegKey, Regis
     let access = if write { KEY_ALL_ACCESS } else { KEY_READ };
     let key_path = if wow6432 { KEY_PATH_WOW6432 } else { KEY_PATH };
     let key = root_key.open_subkey_with_flags(key_path, access)?;
+
     Ok(key)
 }
 
-fn write_raw(location: &Location, bytes: &Vec<u8>, wow6432: bool) -> Result<(), RegistryError> {
+fn write_raw(location: &Location, bytes: &[u8], wow6432: bool) -> Result<(), RegistryError> {
     let value = RegValue {
         vtype: REG_BINARY,
         bytes: bytes.to_owned(),
     };
     let key = open_key(&location.target, true, wow6432)?;
     key.set_raw_value(&location.connection_name, &value)?;
+
     Ok(())
 }
 

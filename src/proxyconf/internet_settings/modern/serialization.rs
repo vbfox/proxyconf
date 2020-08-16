@@ -95,7 +95,7 @@ fn deserialize_config<R: Read>(mut reader: R) -> Result<types::ProxyConfig, Seri
     })
 }
 
-pub fn deserialize<'a, R: Read>(reader: R) -> Result<types::FullConfig, SerializationError> {
+pub fn deserialize<R: Read>(reader: R) -> Result<types::FullConfig, SerializationError> {
     let mut buffered = BufReader::new(reader);
 
     let version = buffered.read_u32::<LittleEndian>()?;

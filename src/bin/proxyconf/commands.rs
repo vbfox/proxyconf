@@ -124,7 +124,7 @@ pub mod main {
 
     fn set_config_and_show(config: &modern::ProxyConfig) {
         set_modern_config(&config);
-        set_legacy_config(&config.to_owned().to_legacy());
+        set_legacy_config(&config.to_legacy());
 
         println!("Configuration changed to: ");
         write_config::ie_modern(&config);
