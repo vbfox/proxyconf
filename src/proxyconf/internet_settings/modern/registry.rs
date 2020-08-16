@@ -17,12 +17,12 @@ use super::types;
 use winreg::enums::*;
 use winreg::{RegKey, RegValue};
 
-const KEY_PATH: &'static str =
+const KEY_PATH: &str =
     "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections";
-const KEY_PATH_WOW6432: &'static str =
+const KEY_PATH_WOW6432: &str =
     "SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections";
-pub const DEFAULT_CONNECTION_NAME: &'static str = "DefaultConnectionSettings";
-pub const WINHTTP_CONNECTION_NAME: &'static str = "WinHttpSettings";
+pub const DEFAULT_CONNECTION_NAME: &str = "DefaultConnectionSettings";
+pub const WINHTTP_CONNECTION_NAME: &str = "WinHttpSettings";
 
 #[derive(Debug, Clone)]
 pub enum Target {
@@ -58,17 +58,19 @@ fn open_key(target: &Target, write: bool, wow6432: bool) -> Result<RegKey, Regis
     let access = if write { KEY_ALL_ACCESS } else { KEY_READ };
     let key_path = if wow6432 { KEY_PATH_WOW6432 } else { KEY_PATH };
     let key = root_key.open_subkey_with_flags(key_path, access)?;
-    return Ok(key);
+
+    Ok(key)
 }
 
-fn write_raw(location: &Location, bytes: &Vec<u8>, wow6432: bool) -> Result<(), RegistryError> {
+fn write_raw(location: &Location, bytes: &[u8], wow6432: bool) -> Result<(), RegistryError> {
     let value = RegValue {
         vtype: REG_BINARY,
         bytes: bytes.to_owned(),
     };
     let key = open_key(&location.target, true, wow6432)?;
     key.set_raw_value(&location.connection_name, &value)?;
-    return Ok(());
+
+    Ok(())
 }
 
 pub fn write_full(location: &Location, config: &types::FullConfig) -> Result<(), RegistryError> {
@@ -82,7 +84,7 @@ pub fn write_full(location: &Location, config: &types::FullConfig) -> Result<(),
 
     write_raw(location, &bytes, false)?;
 
-    return Ok(());
+    Ok(())
 }
 
 fn read_raw(location: &Location) -> Result<Vec<u8>, RegistryError> {
@@ -98,7 +100,8 @@ fn read_raw(location: &Location) -> Result<Vec<u8>, RegistryError> {
 pub fn read_full(location: &Location) -> Result<types::FullConfig, RegistryError> {
     let bytes = read_raw(location)?;
     let conf = serialization::deserialize(&bytes[..])?;
-    return Ok(conf);
+
+    Ok(conf)
 }
 
 pub fn get_next_counter(location: &Location) -> u32 {
@@ -110,7 +113,7 @@ pub fn get_next_counter(location: &Location) -> u32 {
 }
 
 pub fn read(location: &Location) -> Result<types::ProxyConfig, RegistryError> {
-    return Ok(read_full(location)?.config);
+    Ok(read_full(location)?.config)
 }
 
 pub fn write(location: &Location, config: types::ProxyConfig) -> Result<(), RegistryError> {

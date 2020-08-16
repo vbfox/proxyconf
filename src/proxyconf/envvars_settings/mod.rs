@@ -16,9 +16,9 @@ pub fn empty_config() -> ProxyConfig {
     }
 }
 
-const HTTP_PROXY: &'static str = "HTTP_PROXY";
-const HTTPS_PROXY: &'static str = "HTTPS_PROXY";
-const NO_PROXY: &'static str = "NO_PROXY";
+const HTTP_PROXY: &str = "HTTP_PROXY";
+const HTTPS_PROXY: &str = "HTTPS_PROXY";
+const NO_PROXY: &str = "NO_PROXY";
 
 fn get<G>(getter: G) -> io::Result<ProxyConfig>
 where

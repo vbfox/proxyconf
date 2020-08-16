@@ -37,16 +37,16 @@ pub fn empty_full_config() -> FullConfig {
 }
 
 impl ProxyConfig {
-    pub fn to_legacy(self) -> legacy::ProxyConfig {
+    pub fn to_legacy(&self) -> legacy::ProxyConfig {
         legacy::ProxyConfig {
             setup_script_address: if self.use_setup_script {
-                Some(self.setup_script_address)
+                Some(self.setup_script_address.clone())
             } else {
                 None
             },
             use_manual_proxy: self.use_manual_proxy,
-            manual_proxy_address: self.manual_proxy_address,
-            manual_proxy_bypass_list: self.manual_proxy_bypass_list,
+            manual_proxy_address: self.manual_proxy_address.clone(),
+            manual_proxy_bypass_list: self.manual_proxy_bypass_list.clone(),
         }
     }
 }

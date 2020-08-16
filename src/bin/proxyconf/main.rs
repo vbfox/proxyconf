@@ -1,3 +1,4 @@
+#![allow(clippy::redundant_pattern_matching)]
 #[macro_use]
 extern crate clap;
 

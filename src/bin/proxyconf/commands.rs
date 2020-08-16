@@ -17,9 +17,7 @@ pub mod winhttp {
 
     fn is_access_denied(err: &RegistryError) -> bool {
         match err {
-            RegistryError::Io(io_err) => {
-                return io_err.kind() == std::io::ErrorKind::PermissionDenied
-            }
+            RegistryError::Io(io_err) => io_err.kind() == std::io::ErrorKind::PermissionDenied,
             _ => false,
         }
     }
@@ -36,15 +34,15 @@ pub mod winhttp {
             Ok(()) => {
                 println!("Configuration changed to: ");
                 write_config::ie_modern(&config);
-                return CommandResult::Ok;
+                CommandResult::Ok
             }
             Err(e) => {
                 if is_access_denied(&e) {
                     println!("Access denied, you need to run this operation as administrator");
-                    return CommandResult::AccessDenied;
+                    CommandResult::AccessDenied
                 } else {
                     println!("Error: {}", e);
-                    return CommandResult::Error;
+                    CommandResult::Error
                 }
             }
         }
@@ -124,7 +122,7 @@ pub mod main {
 
     fn set_config_and_show(config: &modern::ProxyConfig) {
         set_modern_config(&config);
-        set_legacy_config(&config.to_owned().to_legacy());
+        set_legacy_config(&config.to_legacy());
 
         println!("Configuration changed to: ");
         write_config::ie_modern(&config);
@@ -185,6 +183,6 @@ pub mod main {
         println!("Environment variables (System wide): ");
         envvars::show_machine();
 
-        return CommandResult::Ok;
+        CommandResult::Ok
     }
 }
