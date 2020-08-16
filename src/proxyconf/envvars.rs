@@ -1,15 +1,14 @@
 //! Allow access to the user and machine environment variable block
 
-use std::io;
-use winreg::RegKey;
-use winreg::enums::*;
 use super::registry_helpers;
+use std::io;
+use winreg::enums::*;
+use winreg::RegKey;
 
 const MACHINE_PATH: &'static str =
     "System\\CurrentControlSet\\Control\\Session Manager\\Environment";
 
-const USER_PATH: &'static str =
-    "Environment";
+const USER_PATH: &'static str = "Environment";
 
 /// Get an environment variable from the machine store
 pub fn get_machine(name: &str) -> io::Result<Option<String>> {

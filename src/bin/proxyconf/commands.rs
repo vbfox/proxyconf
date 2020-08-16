@@ -1,10 +1,10 @@
 pub mod winhttp {
     use crate::command_result::CommandResult;
+    use crate::write_config;
     use proxyconf::internet_settings::modern::registry::RegistryError;
     use proxyconf::internet_settings::modern::{
         empty_config, registry, FullConfig, ProxyConfig, WINHTTP_VERSION,
     };
-    use crate::write_config;
 
     pub fn show() {
         let location = registry::get_winhttp_location();
@@ -110,8 +110,8 @@ pub mod main {
     use super::envvars;
     use super::winhttp;
     use crate::command_result::CommandResult;
-    use proxyconf::internet_settings::{legacy, modern};
     use crate::write_config;
+    use proxyconf::internet_settings::{legacy, modern};
 
     fn set_legacy_config(config: &legacy::ProxyConfig) {
         legacy::registry::write(&config).unwrap();

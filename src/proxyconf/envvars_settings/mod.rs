@@ -1,5 +1,5 @@
-use std::io;
 use crate::envvars;
+use std::io;
 
 #[derive(Debug, Clone)]
 pub struct ProxyConfig {
@@ -22,7 +22,7 @@ const NO_PROXY: &'static str = "NO_PROXY";
 
 fn get<G>(getter: G) -> io::Result<ProxyConfig>
 where
-    G: Fn(&str) -> io::Result<Option<String>>
+    G: Fn(&str) -> io::Result<Option<String>>,
 {
     let http_proxy = getter(HTTP_PROXY)?;
     let https_proxy = getter(HTTPS_PROXY)?;
