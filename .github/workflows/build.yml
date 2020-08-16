@@ -25,7 +25,7 @@ jobs:
         profile: minimal
         toolchain: ${{ matrix.rust }}
         override: true
-        components: rustfmt
+        components: clippy
     - name: Check
       run: cargo clippy --all-targets --all-features -- -D warnings
     - name: Run tests
