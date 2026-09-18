@@ -4,71 +4,36 @@ on:
   push:
     branches: [ main ]
   pull_request:
-    branches: [ main ]
+  schedule:
+    # Weekly, so toolchain or dependency breakage surfaces without a push
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
 
 env:
+  RUSTFLAGS: -Dwarnings
   CARGO_TERM_COLOR: always
 
 jobs:
-  check:
-    strategy:
-      matrix:
-        rust:
-          - stable
+  ci:
+    name: Check, test and build
     runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-    - name: rust-toolchain
-      uses: actions-rs/toolchain@b2417cde72dcf67f306c0ae8e0828a81bf0b189f # v1.0.6
-      with:
-        profile: minimal
-        toolchain: ${{ matrix.rust }}
-        override: true
-        components: clippy
-    - name: Check
-      run: cargo clippy --all-targets --all-features -- -D warnings
-    - name: Run tests
-      run: cargo test --verbose
-
-  build:
-    strategy:
-      matrix:
-        rust:
-          - stable
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-    - name: rust-toolchain
-      uses: actions-rs/toolchain@b2417cde72dcf67f306c0ae8e0828a81bf0b189f # v1.0.6
-      with:
-        profile: minimal
-        toolchain: ${{ matrix.rust }}
-        override: true
-    - name: Build
-      run: cargo build --verbose --release
-    - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-      with:
-        name: proxyconf-win32
-        path: target/release/proxyconf.exe
-
-  fmt:
-    name: Rustfmt
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        rust:
-          - stable
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1
+
+      # The version and components come from rust-toolchain.toml
+      - name: Install Rust toolchain
+        run: |
+          rustup toolchain install
+          rustup show
+
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --all-targets --all-features
+      - run: cargo test
+      - run: cargo build --release
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          profile: minimal
-          toolchain: ${{ matrix.rust }}
-          override: true
-          components: rustfmt
-      - uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # v1.0.3
-        with:
-          command: fmt
-          args: --all -- --check
+          name: proxyconf-win32
+          path: target/release/proxyconf.exe
