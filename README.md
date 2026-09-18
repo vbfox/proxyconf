@@ -4,14 +4,17 @@
 [![crates.io][crate-badge]][crate]
 [![Docs][docs-badge]][docs]
 [![GitHub Actions Status][actions-badge]][actions]
+[![msrv]][releases.rs]
 
 [license-badge]: https://img.shields.io/badge/License-MIT-green.svg?longCache=true
-[crate-badge]: https://img.shields.io/badge/crates.io-v0.2.1-orange.svg?longCache=true
+[crate-badge]: https://img.shields.io/crates/v/proxyconf.svg
 [crate]: https://crates.io/crates/proxyconf
-[docs-badge]: https://docs.rs/proxyconf/badge.svg?version=0.2.1
+[docs-badge]: https://docs.rs/proxyconf/badge.svg
 [docs]: https://docs.rs/proxyconf
 [actions-badge]: https://github.com/vbfox/proxyconf/actions/workflows/build.yml/badge.svg?branch=main
-[actions]: https://github.com/vbfox/proxyconf/actions/workflows/build.yml
+[actions]: https://github.com/vbfox/proxyconf/actions/workflows/build.yml?query=branch%3Amain
+[msrv]: https://img.shields.io/crates/msrv/proxyconf.svg
+[releases.rs]: https://releases.rs/#rust-versions
 
 A small command line tool to set proxy configuration on Windows.
 
