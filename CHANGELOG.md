@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2](https://github.com/vbfox/proxyconf/compare/v0.2.1...v0.2.2) - 2026-09-18
+
+### Other
+
+- Add release-plz setup
+- Fix badge
+- Less useless comments
+- Cache cargo registry and build output in CI
+- Drop the weekly scheduled CI run
+- Modernize CI: drop actions-rs, let rust-toolchain.toml drive the version
+- SHA pin GitHub Actions
+- Merge pull request #7 from vbfox/dependabot/github_actions/github-actions-fef1ef3f32
+- Rename default branch from master to main
+- Update all libs
+- Cargo minor update
+- Add depdendabot
+- Fix clippy
+- Update tooling
+- Change README badge for build status
+- Fix components
+- fmt
+- Clippy on gh actions
+- Recommend and configure rust-analyzer
+- More clippy fixes
+- Some clippy fixes
+- better rustfmt component install
+- Split build, add artifact
+- remove VSTS
+- Add github action
+- fmt
+- Replace failure with thiserror
+- Depends on winreg only on windows
+- Add needed vscode extensions
+- Add a license badge
+- Use a crate for hex conversion
+
 ## [0.2.1](https://github.com/vbfox/proxyconf/compare/v0.2.0...v0.2.1) - 2019-05-05
 
 ### Added
