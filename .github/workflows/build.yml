@@ -4,9 +4,6 @@ on:
   push:
     branches: [ main ]
   pull_request:
-  schedule:
-    # Weekly, so toolchain or dependency breakage surfaces without a push
-    - cron: "0 6 * * 1"
 
 permissions:
   contents: read
