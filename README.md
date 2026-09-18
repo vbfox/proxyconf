@@ -10,8 +10,8 @@
 [crate]: https://crates.io/crates/proxyconf
 [docs-badge]: https://docs.rs/proxyconf/badge.svg?version=0.2.1
 [docs]: https://docs.rs/proxyconf
-[actions-badge]: https://github.com/vbfox/proxyconf/workflows/Rust/badge.svg?branch=main
-[actions]: https://github.com/vbfox/proxyconf/actions
+[actions-badge]: https://github.com/vbfox/proxyconf/actions/workflows/build.yml/badge.svg?branch=main
+[actions]: https://github.com/vbfox/proxyconf/actions/workflows/build.yml
 
 A small command line tool to set proxy configuration on Windows.
 
