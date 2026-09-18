@@ -73,9 +73,15 @@ pub mod envvars {
         {
             println!("    Direct access (no proxy server).");
         } else {
-            if let Some(value) = &config.http_proxy_address { println!("    Http proxy  : {}", value) }
-            if let Some(value) = &config.https_proxy_address { println!("    Https proxy : {}", value) }
-            if let Some(value) = &config.bypass_list { println!("    Bypass list : {}", value) }
+            if let Some(value) = &config.http_proxy_address {
+                println!("    Http proxy  : {}", value)
+            }
+            if let Some(value) = &config.https_proxy_address {
+                println!("    Https proxy : {}", value)
+            }
+            if let Some(value) = &config.bypass_list {
+                println!("    Bypass list : {}", value)
+            }
         }
     }
 

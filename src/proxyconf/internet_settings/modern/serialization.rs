@@ -126,7 +126,7 @@ mod tests {
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.version, WINHTTP_VERSION);
         assert_eq!(config.counter, 0);
-        assert_eq!(config.config.use_manual_proxy, false);
+        assert!(!config.config.use_manual_proxy);
         assert_eq!(config.config.manual_proxy_address, String::from(""));
         assert_eq!(config.config.manual_proxy_bypass_list, String::from(""));
 
@@ -142,7 +142,7 @@ mod tests {
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.version, WINHTTP_VERSION);
         assert_eq!(config.counter, 0);
-        assert_eq!(config.config.use_manual_proxy, true);
+        assert!(config.config.use_manual_proxy);
         assert_eq!(config.config.manual_proxy_address, String::from("a:42"));
         assert_eq!(config.config.manual_proxy_bypass_list, String::from("*.42"));
 
@@ -158,11 +158,11 @@ mod tests {
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.version, IE6_VERSION);
         assert_eq!(config.counter, 58);
-        assert_eq!(config.config.automatically_detect_settings, true);
-        assert_eq!(config.config.use_manual_proxy, false);
+        assert!(config.config.automatically_detect_settings);
+        assert!(!config.config.use_manual_proxy);
         assert_eq!(config.config.manual_proxy_address, String::from(""));
         assert_eq!(config.config.manual_proxy_bypass_list, String::from(""));
-        assert_eq!(config.config.use_setup_script, false);
+        assert!(!config.config.use_setup_script);
         assert_eq!(config.config.setup_script_address, String::from(""));
 
         let mut roundtrip = Vec::new();
@@ -177,11 +177,11 @@ mod tests {
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.version, IE7_VERSION);
         assert_eq!(config.counter, 58);
-        assert_eq!(config.config.automatically_detect_settings, false);
-        assert_eq!(config.config.use_manual_proxy, false);
+        assert!(!config.config.automatically_detect_settings);
+        assert!(!config.config.use_manual_proxy);
         assert_eq!(config.config.manual_proxy_address, String::from(""));
         assert_eq!(config.config.manual_proxy_bypass_list, String::from(""));
-        assert_eq!(config.config.use_setup_script, false);
+        assert!(!config.config.use_setup_script);
         assert_eq!(config.config.setup_script_address, String::from(""));
 
         let mut roundtrip = Vec::new();
@@ -196,8 +196,8 @@ mod tests {
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.version, IE7_VERSION);
         assert_eq!(config.counter, 64);
-        assert_eq!(config.config.automatically_detect_settings, true);
-        assert_eq!(config.config.use_manual_proxy, true);
+        assert!(config.config.automatically_detect_settings);
+        assert!(config.config.use_manual_proxy);
         assert_eq!(
             config.config.manual_proxy_address,
             String::from("google.com:42")
@@ -206,7 +206,7 @@ mod tests {
             config.config.manual_proxy_bypass_list,
             String::from("Lol;<local>")
         );
-        assert_eq!(config.config.use_setup_script, true);
+        assert!(config.config.use_setup_script);
         assert_eq!(
             config.config.setup_script_address,
             String::from("http://google.fr/")
@@ -224,8 +224,8 @@ mod tests {
         let config = deserialize(&data[..]).unwrap();
         assert_eq!(config.version, IE7_VERSION);
         assert_eq!(config.counter, 68);
-        assert_eq!(config.config.automatically_detect_settings, false);
-        assert_eq!(config.config.use_manual_proxy, false);
+        assert!(!config.config.automatically_detect_settings);
+        assert!(!config.config.use_manual_proxy);
         assert_eq!(
             config.config.manual_proxy_address,
             String::from("google.com:42")
@@ -234,7 +234,7 @@ mod tests {
             config.config.manual_proxy_bypass_list,
             String::from("Lol;<local>")
         );
-        assert_eq!(config.config.use_setup_script, false);
+        assert!(!config.config.use_setup_script);
         assert_eq!(
             config.config.setup_script_address,
             String::from("http://google.fr/")

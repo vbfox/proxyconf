@@ -1,8 +1,5 @@
-#![allow(clippy::redundant_pattern_matching)]
-#[macro_use]
-extern crate clap;
-
 use crate::command_result::CommandResult;
+use clap::ArgMatches;
 
 mod args;
 mod command_result;
@@ -19,37 +16,38 @@ fn on_unexpected_command() {
     exit_with_command_result(CommandResult::UnexpectedCommand)
 }
 
+fn arg<'a>(matches: &'a ArgMatches, name: &str) -> Option<&'a str> {
+    matches.get_one::<String>(name).map(String::as_str)
+}
+
 fn main() {
     let matches = args::get().get_matches();
 
-    if let Some(_) = matches.subcommand_matches("show") {
-        exit_with_command_result(commands::main::show());
-    } else if let Some(set_matches) = matches.subcommand_matches("set") {
-        if let Some(_) = set_matches.subcommand_matches("no-proxy") {
-            commands::main::set_no_proxy();
-        } else if let Some(_) = set_matches.subcommand_matches("auto-detect") {
-            commands::main::set_auto_detect();
-        } else if let Some(script_matches) = set_matches.subcommand_matches("setup-script") {
-            let url = script_matches.value_of("url").unwrap();
-            commands::main::set_setup_script(url);
-        } else if let Some(proxy_matches) = set_matches.subcommand_matches("proxy") {
-            let server = proxy_matches.value_of("server").unwrap();
-            let bypass_list = proxy_matches.value_of("bypass").unwrap_or("<local>");
-            commands::main::set_server(server, bypass_list);
-        } else {
-            on_unexpected_command();
-        }
-    } else if let Some(winhttp_matches) = matches.subcommand_matches("winhttp") {
-        if let Some(_) = winhttp_matches.subcommand_matches("no-proxy") {
-            exit_with_command_result(commands::winhttp::set_no_proxy());
-        } else if let Some(proxy_matches) = winhttp_matches.subcommand_matches("proxy") {
-            let server = proxy_matches.value_of("server").unwrap();
-            let bypass_list = proxy_matches.value_of("bypass").unwrap_or("<local>");
-            exit_with_command_result(commands::winhttp::set_server(server, bypass_list));
-        } else {
-            on_unexpected_command();
-        }
-    } else {
-        args::get().print_help().unwrap();
+    match matches.subcommand() {
+        Some(("show", _)) => exit_with_command_result(commands::main::show()),
+        Some(("set", set_matches)) => match set_matches.subcommand() {
+            Some(("no-proxy", _)) => commands::main::set_no_proxy(),
+            Some(("auto-detect", _)) => commands::main::set_auto_detect(),
+            Some(("setup-script", script_matches)) => {
+                let url = arg(script_matches, "url").unwrap();
+                commands::main::set_setup_script(url);
+            }
+            Some(("proxy", proxy_matches)) => {
+                let server = arg(proxy_matches, "server").unwrap();
+                let bypass_list = arg(proxy_matches, "bypass").unwrap_or("<local>");
+                commands::main::set_server(server, bypass_list);
+            }
+            _ => on_unexpected_command(),
+        },
+        Some(("winhttp", winhttp_matches)) => match winhttp_matches.subcommand() {
+            Some(("no-proxy", _)) => exit_with_command_result(commands::winhttp::set_no_proxy()),
+            Some(("proxy", proxy_matches)) => {
+                let server = arg(proxy_matches, "server").unwrap();
+                let bypass_list = arg(proxy_matches, "bypass").unwrap_or("<local>");
+                exit_with_command_result(commands::winhttp::set_server(server, bypass_list));
+            }
+            _ => on_unexpected_command(),
+        },
+        _ => args::get().print_help().unwrap(),
     }
 }

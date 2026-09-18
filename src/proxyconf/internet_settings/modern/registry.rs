@@ -65,7 +65,7 @@ fn open_key(target: &Target, write: bool, wow6432: bool) -> Result<RegKey, Regis
 fn write_raw(location: &Location, bytes: &[u8], wow6432: bool) -> Result<(), RegistryError> {
     let value = RegValue {
         vtype: REG_BINARY,
-        bytes: bytes.to_owned(),
+        bytes: bytes.into(),
     };
     let key = open_key(&location.target, true, wow6432)?;
     key.set_raw_value(&location.connection_name, &value)?;
@@ -92,7 +92,7 @@ fn read_raw(location: &Location) -> Result<Vec<u8>, RegistryError> {
     let value = key.get_raw_value(&location.connection_name)?;
 
     match value.vtype {
-        REG_BINARY => Ok(value.bytes),
+        REG_BINARY => Ok(value.bytes.into_owned()),
         _ => Err(RegistryError::InvalidValueType),
     }
 }

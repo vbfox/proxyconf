@@ -1,86 +1,83 @@
-use clap::{App, Arg, SubCommand};
+use clap::{crate_version, Arg, Command};
 
-trait CommonCommands<'a, 'b> {
-    fn no_proxy(self) -> App<'a, 'b>;
-    fn auto_detect(self) -> App<'a, 'b>;
-    fn setup_script(self) -> App<'a, 'b>;
-    fn manual_proxy(self) -> App<'a, 'b>;
+trait CommonCommands {
+    fn no_proxy(self) -> Command;
+    fn auto_detect(self) -> Command;
+    fn setup_script(self) -> Command;
+    fn manual_proxy(self) -> Command;
 }
 
-impl<'a, 'b> CommonCommands<'a, 'b> for App<'a, 'b> {
-    fn no_proxy(self) -> App<'a, 'b> {
+impl CommonCommands for Command {
+    fn no_proxy(self) -> Command {
         self.subcommand(
-            SubCommand::with_name("no-proxy")
+            Command::new("no-proxy")
                 .about("Disable proxy")
-                .aliases(&["disabled"]),
+                .aliases(["disabled"]),
         )
     }
 
-    fn auto_detect(self) -> App<'a, 'b> {
+    fn auto_detect(self) -> Command {
         self.subcommand(
-            SubCommand::with_name("auto-detect")
+            Command::new("auto-detect")
                 .about("Automatically detect settings")
-                .aliases(&["auto"]),
+                .aliases(["auto"]),
         )
     }
 
-    fn setup_script(self) -> App<'a, 'b> {
+    fn setup_script(self) -> Command {
         self.subcommand(
-            SubCommand::with_name("setup-script")
+            Command::new("setup-script")
                 .about("Use a Proxy auto-config setup script (PAC)")
                 .arg(
-                    Arg::with_name("url")
+                    Arg::new("url")
                         .index(1)
                         .value_name("SCRIPT_URL")
                         .help("URL of the auto-config setup script (PAC) file")
-                        .takes_value(true)
                         .required(true),
                 ),
         )
     }
 
-    fn manual_proxy(self) -> App<'a, 'b> {
+    fn manual_proxy(self) -> Command {
         self.subcommand(
-            SubCommand::with_name("proxy")
+            Command::new("proxy")
                 .about("Use a manual proxy")
                 .arg(
-                    Arg::with_name("server")
+                    Arg::new("server")
                         .index(1)
                         .value_name("ADDRESS:PORT")
                         .help("Use a manual proxy with the specified address and port")
-                        .takes_value(true)
                         .required(true),
                 )
                 .arg(
-                    Arg::with_name("bypass")
+                    Arg::new("bypass")
                         .index(2)
                         .value_name("BYPASS_LIST")
                         .help(
                             "List of addresses that don't use the proxy (Separated by semicolons)",
                         )
-                        .takes_value(true)
                         .required(false),
                 ),
         )
     }
 }
 
-pub fn get<'a, 'b>() -> App<'a, 'b> {
-    App::new("ProxyConf")
+pub fn get() -> Command {
+    Command::new("ProxyConf")
         .version(crate_version!())
         .author("Julien Roncaglia <julien@roncaglia.fr>")
         .about("Windows proxy configuration from the command line")
         .subcommand(
-            SubCommand::with_name("set")
+            Command::new("set")
                 .about("Set the current user proxy configuration")
                 .no_proxy()
                 .auto_detect()
                 .setup_script()
                 .manual_proxy(),
         )
-        .subcommand(SubCommand::with_name("show").about("Show the current proxy configuration"))
+        .subcommand(Command::new("show").about("Show the current proxy configuration"))
         .subcommand(
-            SubCommand::with_name("winhttp")
+            Command::new("winhttp")
                 .about("Set the system-wide WinHTTP configuration")
                 .no_proxy()
                 .manual_proxy(),
