@@ -33,7 +33,7 @@ pub mod winhttp {
         match registry::write_full(&location, &full_config) {
             Ok(()) => {
                 println!("Configuration changed to: ");
-                write_config::ie_modern(&config);
+                write_config::ie_modern(config);
                 CommandResult::Ok
             }
             Err(e) => {
@@ -73,18 +73,9 @@ pub mod envvars {
         {
             println!("    Direct access (no proxy server).");
         } else {
-            match &config.http_proxy_address {
-                Some(value) => println!("    Http proxy  : {}", value),
-                None => {}
-            }
-            match &config.https_proxy_address {
-                Some(value) => println!("    Https proxy : {}", value),
-                None => {}
-            }
-            match &config.bypass_list {
-                Some(value) => println!("    Bypass list : {}", value),
-                None => {}
-            }
+            if let Some(value) = &config.http_proxy_address { println!("    Http proxy  : {}", value) }
+            if let Some(value) = &config.https_proxy_address { println!("    Https proxy : {}", value) }
+            if let Some(value) = &config.bypass_list { println!("    Bypass list : {}", value) }
         }
     }
 
@@ -112,7 +103,7 @@ pub mod main {
     use proxyconf::internet_settings::{legacy, modern};
 
     fn set_legacy_config(config: &legacy::ProxyConfig) {
-        legacy::registry::write(&config).unwrap();
+        legacy::registry::write(config).unwrap();
     }
 
     fn set_modern_config(config: &modern::ProxyConfig) {
@@ -121,11 +112,11 @@ pub mod main {
     }
 
     fn set_config_and_show(config: &modern::ProxyConfig) {
-        set_modern_config(&config);
+        set_modern_config(config);
         set_legacy_config(&config.to_legacy());
 
         println!("Configuration changed to: ");
-        write_config::ie_modern(&config);
+        write_config::ie_modern(config);
     }
 
     pub fn set_server(server: &str, bypass_list: &str) {
@@ -162,7 +153,7 @@ pub mod main {
         let location = modern::registry::get_current_user_location();
         let conf = modern::registry::read(&location);
         match &conf {
-            Ok(conf) => write_config::ie_modern(&conf),
+            Ok(conf) => write_config::ie_modern(conf),
             Err(e) => println!("    Error: {}", e),
         }
     }

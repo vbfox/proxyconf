@@ -53,7 +53,7 @@ pub fn serialize<W: Write>(
 
     buffered.write_u32::<LittleEndian>(version)?;
     buffered.write_u32::<LittleEndian>(config.counter)?;
-    buffered.write_u32::<LittleEndian>(mk_bit_field(version, &config))?;
+    buffered.write_u32::<LittleEndian>(mk_bit_field(version, config))?;
 
     string_serialization::write(&mut buffered, &config.config.manual_proxy_address)?;
     string_serialization::write(&mut buffered, &config.config.manual_proxy_bypass_list)?;
@@ -99,7 +99,7 @@ pub fn deserialize<R: Read>(reader: R) -> Result<types::FullConfig, Serializatio
     let mut buffered = BufReader::new(reader);
 
     let version = buffered.read_u32::<LittleEndian>()?;
-    if version < WINHTTP_VERSION || version > IE7_VERSION {
+    if !(WINHTTP_VERSION..=IE7_VERSION).contains(&version) {
         // Versions seem forward compatible but it's hard to be sure that it will always be the case
         // The chance to encounter anything older than WinHTTP version seem small ;-)
         return Err(SerializationError::InvalidVersion(version));

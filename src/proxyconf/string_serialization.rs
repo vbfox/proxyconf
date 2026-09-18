@@ -22,7 +22,7 @@ use std::{
 };
 
 fn usize_to_u32(a: usize) -> Result<u32, StringSerializationError> {
-    if a > std::u32::MAX as usize {
+    if a > u32::MAX as usize {
         Err(StringSerializationError::InvalidSize(a))
     } else {
         Ok(a as u32)

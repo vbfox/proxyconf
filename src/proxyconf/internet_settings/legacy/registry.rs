@@ -70,10 +70,7 @@ pub fn read() -> Result<types::ProxyConfig, RegistryError> {
 
     Ok(types::ProxyConfig {
         setup_script_address,
-        use_manual_proxy: match proxy_enable.unwrap_or(0) {
-            0 => false,
-            _ => true,
-        },
+        use_manual_proxy: !matches!(proxy_enable.unwrap_or(0), 0),
         manual_proxy_address: proxy_server.unwrap_or_else(|| String::from("")),
         manual_proxy_bypass_list: proxy_override.unwrap_or_else(|| String::from("")),
     })
