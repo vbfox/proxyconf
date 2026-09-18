@@ -19,13 +19,11 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      # The version and components come from rust-toolchain.toml
       - name: Install Rust toolchain
         run: |
           rustup toolchain install
           rustup show
 
-      # Caches ~/.cargo and target/, keyed on Cargo.lock and the rustc version
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
 
       - run: cargo fmt --all -- --check
