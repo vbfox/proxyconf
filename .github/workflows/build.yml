@@ -25,6 +25,9 @@ jobs:
           rustup toolchain install
           rustup show
 
+      # Caches ~/.cargo and target/, keyed on Cargo.lock and the rustc version
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+
       - run: cargo fmt --all -- --check
       - run: cargo clippy --all-targets --all-features
       - run: cargo test
