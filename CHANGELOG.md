@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4](https://github.com/vbfox/proxyconf/compare/v0.2.3...v0.2.4) - 2026-10-29
+
+### Other
+
+- Merge pull request #15 from vbfox/dependabot/github_actions/github-actions-e54ec57fd8
+- Bump the github-actions group across 1 directory with 3 updates
+
 ## [0.2.3](https://github.com/vbfox/proxyconf/compare/v0.2.2...v0.2.3) - 2026-09-18
 
 ### Other
